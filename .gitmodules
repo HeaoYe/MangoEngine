@@ -1,0 +1,3 @@
+[submodule "MangoRHI"]
+	path = MangoRHI
+	url = https://github.com/HeaoYe/MangoRHI
