@@ -16,9 +16,7 @@
     #error Unknown Platform.
 #endif
 
-#if defined (NDEBUG)
-    #define MANGO_DEBUG
-
+#if defined (MANGO_DEBUG)
     #define MANGO_ASSERT(expr) \
     if(!(expr)) { \
         MG_FATAL("Mango Assert Failed {} -> {}", __FILE__, __LINE__) \
@@ -26,7 +24,6 @@
     }
 #else
     #define MANGO_RELEASE
-
     #define MANGO_ASSERT(expr)
 #endif
 
