@@ -44,8 +44,11 @@ namespace MangoEngine {
     typedef float f32;
     typedef double d32;
     typedef u8 Bool;
+    typedef u8 ButtonState;
     constexpr Bool MG_FALSE = 0;
     constexpr Bool MG_TRUE = 1;
+    constexpr ButtonState MG_UP = 0;
+    constexpr ButtonState MG_DOWN = 1;
     #define BIT(x) (1 << x)
 
     #define no_copy_and_move_construction(cls_name) \
@@ -66,7 +69,10 @@ namespace MangoEngine {
         static ::std::unique_ptr<cls_name> _instance; \
     no_copy_and_move_construction(cls_name)
 
-    #define implement_runtime_system(cls_name, ...) \
+    #define declare_runtime_system_alias(cls_name, alias) \
+    extern cls_name *alias;
+
+    #define implement_runtime_system_start(cls_name, ...) \
     ::std::unique_ptr<cls_name> cls_name::_instance; \
     cls_name &cls_name::GetInstance() { \
         return *_instance; \
@@ -77,6 +83,10 @@ namespace MangoEngine {
     } \
     void cls_name::Initialize(__VA_ARGS__) { \
         MG_INFO("Initialize {} Runtime System.", #cls_name)
+    #define implement_runtime_system_end(cls_name, alias) \
+        alias = &*_instance; \
+    } \
+    cls_name *alias;
 
     enum class Result {
         eSuccess,
@@ -90,6 +100,11 @@ namespace MangoEngine {
         eWarn,
         eError,
         eFatal,
+    };
+
+    struct Pos {
+        u32 x;
+        u32 y;
     };
 }
 

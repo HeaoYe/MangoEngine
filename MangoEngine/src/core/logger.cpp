@@ -1,28 +1,29 @@
 #include "MangoEngine/core/logger.hpp"
 
 namespace MangoEngine {
-    ::std::unique_ptr<Logger> Logger::_instance;
-    
-    Logger &Logger::GetInstance() {
+    ::std::unique_ptr<LoggerSystem> LoggerSystem::_instance;
+
+    LoggerSystem &LoggerSystem::GetInstance() {
         return *_instance;
     }
 
-    void Logger::Quit() {
+    void LoggerSystem::Quit() {
         MG_INFO("Quit Logger Runtime System.")
         _instance.reset();
     }
 
-    void Logger::Initialize(LogLevel level) {
-        _instance.reset(new Logger(level));
+    void LoggerSystem::Initialize(LogLevel level) {
+        logger = new LoggerSystem(level);
+        _instance.reset(logger);
         MG_INFO("Initialize Logger Runtime System.")
     }
 
-    Logger::Logger(LogLevel level) {
+    LoggerSystem::LoggerSystem(LogLevel level) {
         spd_logger = spdlog::stdout_color_mt("MangoEngine");
         set_level(level);
     }
 
-    Logger::~Logger() {
+    LoggerSystem::~LoggerSystem() {
         spdlog::shutdown();
     }
 
@@ -43,7 +44,9 @@ namespace MangoEngine {
         }
     }
 
-    void Logger::set_level(LogLevel level) {
+    void LoggerSystem::set_level(LogLevel level) {
         spd_logger->set_level(level2spdlog(level));
     }
+
+    LoggerSystem *logger;
 }

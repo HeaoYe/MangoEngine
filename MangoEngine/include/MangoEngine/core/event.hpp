@@ -57,13 +57,14 @@ namespace MangoEngine {
         eLeft,
         eMiddle,
         eRight,
+        MAX_NUM
     };
 
     declare_event(Window, WindowResized, u32 width, height;)
     declare_event(Window, WindowMoved, u32 x, y;)
     declare_event(Window, WindowClose)
-    declare_event(Key, KeyPressed, u32 keycode;)
-    declare_event(Key, KeyReleased, u32 keycode;)
+    declare_event(Key, KeyPressed, u32 key;)
+    declare_event(Key, KeyReleased, u32 key;)
     declare_event(Mouse, MousePressed, MouseButton button;)
     declare_event(Mouse, MouseReleased, MouseButton button;)
     declare_event(Mouse, MouseMoved, u32 x, y;)
@@ -85,6 +86,7 @@ namespace MangoEngine {
             EventCls::callbacks.push_back(callback);
         }
 
-        declare_runtime_system(EventSystem)
+    declare_runtime_system(EventSystem)
     };
+    declare_runtime_system_alias(EventSystem, event_system);
 }

@@ -21,13 +21,13 @@ namespace MangoEngine {
 
     implement_event(KeyPressed) {
         std::stringstream ss;
-        ss << get_type_name() << ": " << "keycode: " << keycode;
+        ss << get_type_name() << ": " << "key: " << key;
         return ss.str();
     }
 
     implement_event(KeyReleased) {
         std::stringstream ss;
-        ss << get_type_name() << ": " << "keycode: " << keycode;
+        ss << get_type_name() << ": " << "key: " << key;
         return ss.str();
     }
 
@@ -55,10 +55,11 @@ namespace MangoEngine {
         return ss.str();
     }
 
-    implement_runtime_system(EventSystem)
+    implement_runtime_system_start(EventSystem)
         _instance.reset(new EventSystem);
-    }
+    implement_runtime_system_end(EventSystem, event_system)
 
-    EventSystem::EventSystem() {}
-    EventSystem::~EventSystem() {}
+    EventSystem::EventSystem() = default;
+
+    EventSystem::~EventSystem() = default;
 }

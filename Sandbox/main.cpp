@@ -2,19 +2,21 @@
 
 class TestApplication : public MangoEngine::Application {
     MangoEngine::Result initialize() {
-        MangoEngine::EventSystem::GetInstance().add_event_callback<MangoEngine::KeyPressedEvent>([](MangoEngine::KeyPressedEvent event) {
-            MG_INFO("Key Pressed {}", event.keycode)
+        MangoEngine::event_system->add_event_callback<MangoEngine::KeyPressedEvent>([](MangoEngine::KeyPressedEvent event) {
+            MG_INFO("Key Pressed {}", event.key)
         });
         return MangoEngine::Result::eSuccess;
     }
 
     MangoEngine::Result on_draw() {
-        MG_DEBUG("On Draw")
         return MangoEngine::Result::eSuccess;
     }
 
     MangoEngine::Result on_update() {
-        MG_DEBUG("On Update")
+        if (MangoEngine::input->is_key_down(50) == MangoEngine::MG_TRUE) {
+            MG_INFO("Key 50 is downed.")
+            MG_INFO("Current Mouse Pos is {} {}.", MangoEngine::input->get_mouse_x(), MangoEngine::input->get_mouse_pos().y)
+        }
         return MangoEngine::Result::eSuccess;
     }
 
