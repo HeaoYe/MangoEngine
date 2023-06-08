@@ -11,6 +11,7 @@ int main() {
     #endif
 
     MangoEngine::Logger::Initialize(level);
+    MangoEngine::Window::Initialize();
 
     MangoEngine::Result res;
     auto *application = MangoEngine::create_application();
@@ -20,8 +21,7 @@ int main() {
         return -1;
     }
 
-    MG_INFO("Running")
-    for (MangoEngine::u32 i = 0; i < 100; i ++) {
+    while (MangoEngine::Window::GetInstance().pull_events() != MangoEngine::MG_FALSE) {
         application->on_draw();
         application->on_update();
     }
@@ -32,5 +32,6 @@ int main() {
         return -1;
     }
 
+    MangoEngine::Window::Quit();
     MangoEngine::Logger::Quit();
 }

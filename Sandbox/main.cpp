@@ -2,7 +2,7 @@
 
 class TestApplication : public MangoEngine::Application {
     MangoEngine::Result initialize() {
-        MangoEngine::Logger::GetInstance().set_level(MangoEngine::LogLevel::eDebug);
+        // MangoEngine::Logger::GetInstance().set_level(MangoEngine::LogLevel::eDebug);
         return MangoEngine::Result::eSuccess;
     }
 

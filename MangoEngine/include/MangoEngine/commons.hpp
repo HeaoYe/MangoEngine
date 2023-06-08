@@ -6,6 +6,8 @@
 #elif defined (__unix__)
     #define MANGO_PLATFORM_UNIX
     #define MANGO_API
+    #define MANGO_USE_XCB_WINDOW
+    // #define MANGO_USE_WAYLAND_WINDOW
 #elif defined (__APPLE__)
     #define MANGO_PLATFORM_APPLE
     #error Not impl for mac and ios.
@@ -44,21 +46,25 @@ namespace MangoEngine {
     constexpr Bool MG_FALSE = 0;
     constexpr Bool MG_TRUE = 1;
     #define BIT(x) (1 << x)
-    
+
+    #define no_copy_and_move_construction(cls_name) \
+    private: \
+        cls_name(const cls_name &) = delete; \
+        cls_name(cls_name &&) = delete; \
+        cls_name &operator=(const cls_name &) = delete; \
+        cls_name &operator=(cls_name &&) = delete;
+
     #define declare_runtime_system(cls_name, ...) \
     public: \
         cls_name(__VA_ARGS__); \
-        ~cls_name(); \
+        virtual ~cls_name(); \
         static void Initialize(__VA_ARGS__); \
         static void Quit(); \
         static cls_name &GetInstance(); \
     private: \
         static ::std::unique_ptr<cls_name> _instance; \
-        cls_name(const cls_name &) = delete; \
-        cls_name(cls_name &&) = delete; \
-        cls_name &operator=(const cls_name &) = delete; \
-        cls_name &operator=(cls_name &&) = delete;
-    
+    no_copy_and_move_construction(cls_name)
+
     #define implement_runtime_system(cls_name, ...) \
     ::std::unique_ptr<cls_name> cls_name::_instance; \
     cls_name &cls_name::GetInstance() { \
@@ -85,3 +91,5 @@ namespace MangoEngine {
         eFatal,
     };
 }
+
+#include "core/logger.hpp"
