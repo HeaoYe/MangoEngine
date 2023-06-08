@@ -10,8 +10,10 @@ int main() {
     auto level = MangoEngine::LogLevel::eInfo;
     #endif
 
-    MangoEngine::Logger::Initialize(level);
-    MangoEngine::Window::Initialize();
+    MangoEngine::LoggerSystem::Initialize(level);
+    MangoEngine::WindowSystem::Initialize();
+    MangoEngine::EventSystem::Initialize();
+    MangoEngine::InputSystem::Initialize();
 
     MangoEngine::Result res;
     auto *application = MangoEngine::create_application();
@@ -21,9 +23,10 @@ int main() {
         return -1;
     }
 
-    while (MangoEngine::Window::GetInstance().pull_events() != MangoEngine::MG_FALSE) {
+    while (MangoEngine::window->pull_events() != MangoEngine::MG_FALSE) {
         application->on_draw();
         application->on_update();
+        MangoEngine::input->swap_state();
     }
 
     res = application->quit();
@@ -32,6 +35,8 @@ int main() {
         return -1;
     }
 
-    MangoEngine::Window::Quit();
-    MangoEngine::Logger::Quit();
+    MangoEngine::InputSystem::Quit();
+    MangoEngine::EventSystem::Quit();
+    MangoEngine::WindowSystem::Quit();
+    MangoEngine::LoggerSystem::Quit();
 }

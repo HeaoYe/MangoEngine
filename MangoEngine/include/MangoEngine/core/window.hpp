@@ -3,7 +3,7 @@
 #include "../commons.hpp"
 
 namespace MangoEngine {
-    class Window {
+    class WindowSystem {
     public:
         virtual Bool pull_events();
     protected:
@@ -11,6 +11,7 @@ namespace MangoEngine {
         u32 width { 320 }, height { 320 };
         const char *title = "";
 
-    declare_runtime_system(Window)
+    declare_runtime_system(WindowSystem)
     };
+    declare_runtime_system_alias(WindowSystem, window)
 }

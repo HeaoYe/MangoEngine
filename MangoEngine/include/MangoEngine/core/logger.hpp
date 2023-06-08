@@ -5,7 +5,7 @@
 #include <spdlog/sinks/stdout_color_sinks.h>
 
 namespace MangoEngine {
-    class Logger {
+    class LoggerSystem {
     public:
         void set_level(LogLevel level);
 
@@ -40,14 +40,15 @@ namespace MangoEngine {
         }
     private:
         std::shared_ptr<spdlog::logger> spd_logger;
-    
-    declare_runtime_system(Logger, LogLevel level)
+
+    declare_runtime_system(LoggerSystem, LogLevel level)
     };
+    declare_runtime_system_alias(LoggerSystem, logger)
 }
 
-#define MG_TRACE(...) ::MangoEngine::Logger::GetInstance().trace(__VA_ARGS__);
-#define MG_DEBUG(...) ::MangoEngine::Logger::GetInstance().debug(__VA_ARGS__);
-#define MG_INFO(...) ::MangoEngine::Logger::GetInstance().info(__VA_ARGS__);
-#define MG_WARN(...) ::MangoEngine::Logger::GetInstance().warn(__VA_ARGS__);
-#define MG_ERROR(...) ::MangoEngine::Logger::GetInstance().error(__VA_ARGS__);
-#define MG_FATAL(...) ::MangoEngine::Logger::GetInstance().fatal(__VA_ARGS__);
+#define MG_TRACE(...) ::MangoEngine::logger->trace(__VA_ARGS__);
+#define MG_DEBUG(...) ::MangoEngine::logger->debug(__VA_ARGS__);
+#define MG_INFO(...) ::MangoEngine::logger->info(__VA_ARGS__);
+#define MG_WARN(...) ::MangoEngine::logger->warn(__VA_ARGS__);
+#define MG_ERROR(...) ::MangoEngine::logger->error(__VA_ARGS__);
+#define MG_FATAL(...) ::MangoEngine::logger->fatal(__VA_ARGS__);

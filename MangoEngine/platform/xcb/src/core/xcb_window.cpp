@@ -3,11 +3,13 @@
 #if defined (MANGO_USE_XCB_WINDOW)
 
 #include <xcb/xcb.h>
+#include "MangoEngine/core/event.hpp"
+#include "MangoEngine/core/input.hpp"
 
 namespace MangoEngine {
-    class X11Window : public Window {
+    class XcbWindowSystem : public WindowSystem {
     public:
-        X11Window() {
+        XcbWindowSystem() {
             int screen_idx;
             connection = xcb_connect(nullptr, &screen_idx);
             const xcb_setup_t *setup = xcb_get_setup(connection);
@@ -57,7 +59,7 @@ namespace MangoEngine {
             }
         }
 
-        ~X11Window() override {
+        ~XcbWindowSystem() override {
             u32 kb_value_list[] = {
                 XCB_AUTO_REPEAT_MODE_ON, 0
             };
@@ -76,38 +78,97 @@ namespace MangoEngine {
 
             while ((event = xcb_poll_for_event(connection)) != 0) {
                 switch (event->response_type & ~0x80) {
-                    case XCB_KEY_PRESS: {
-                        xcb_key_press_event_t *key_press_event = (xcb_key_press_event_t *)event;
+                case XCB_KEY_PRESS: {
+                    xcb_key_press_event_t *key_press_event = (xcb_key_press_event_t *)event;
+                    input->states[input->current_state].key_states[key_press_event->detail] = MG_DOWN;
+                    EventSystem::GetInstance().dispatch<KeyPressedEvent>({ .key = key_press_event->detail });
+                    break;
+                }
+                case XCB_KEY_RELEASE: {
+                    xcb_key_release_event_t *key_release_event = (xcb_key_release_event_t *)event;
+                    input->states[input->current_state].key_states[key_release_event->detail] = MG_UP;
+                    EventSystem::GetInstance().dispatch<KeyReleasedEvent>({ .key = key_release_event->detail });
+                    break;
+                }
+                case XCB_BUTTON_PRESS: {
+                    xcb_button_press_event_t *btn_press_event = (xcb_button_press_event_t *)event;
+                    switch (btn_press_event->detail) {
+                    case 1:
+                        input->states[input->current_state].mouse_button_states[0] = MG_DOWN;
+                        EventSystem::GetInstance().dispatch<MousePressedEvent>({ .button = MouseButton::eLeft });
+                        break;
+                    case 2:
+                        input->states[input->current_state].mouse_button_states[1] = MG_DOWN;
+                        EventSystem::GetInstance().dispatch<MousePressedEvent>({ .button = MouseButton::eMiddle });
+                        break;
+                    case 3:
+                        input->states[input->current_state].mouse_button_states[2] = MG_DOWN;
+                        EventSystem::GetInstance().dispatch<MousePressedEvent>({ .button = MouseButton::eRight });
+                        break;
+                    case 4:
+                        input->states[input->current_state].mouse_scroll = 1;
+                        EventSystem::GetInstance().dispatch<MouseScrollEvent>({ .delta = 1 });
+                        break;
+                    case 5:
+                        input->states[input->current_state].mouse_scroll = -1;
+                        EventSystem::GetInstance().dispatch<MouseScrollEvent>({ .delta = -1 });
+                        break;
+                    default:
                         break;
                     }
-                    case XCB_KEY_RELEASE: {
-                        xcb_key_release_event_t *key_release_event = (xcb_key_release_event_t *)event;
+                    break;
+                }
+                case XCB_BUTTON_RELEASE: {
+                    xcb_button_release_event_t *btn_release_event = (xcb_button_release_event_t *)event;
+                    switch (btn_release_event->detail) {
+                    case 1:
+                        input->states[input->current_state].mouse_button_states[0] = MG_UP;
+                        EventSystem::GetInstance().dispatch<MouseReleasedEvent>({ .button = MouseButton::eLeft });
+                        break;
+                    case 2:
+                        input->states[input->current_state].mouse_button_states[1] = MG_UP;
+                        EventSystem::GetInstance().dispatch<MouseReleasedEvent>({ .button = MouseButton::eMiddle });
+                        break;
+                    case 3:
+                        input->states[input->current_state].mouse_button_states[2] = MG_UP;
+                        EventSystem::GetInstance().dispatch<MouseReleasedEvent>({ .button = MouseButton::eRight });
+                        break;
+                    default:
                         break;
                     }
-                    case XCB_BUTTON_PRESS: {
-                        xcb_button_press_event_t *btn_press_event = (xcb_button_press_event_t *)event;
-                        break;
+                    break;
+                }
+                case XCB_MOTION_NOTIFY: {
+                    xcb_motion_notify_event_t *motion_notify_event = (xcb_motion_notify_event_t *)event;
+                    input->states[input->current_state].mouse_x = static_cast<u32>(motion_notify_event->event_x);
+                    input->states[input->current_state].mouse_y = static_cast<u32>(motion_notify_event->event_y);
+                    EventSystem::GetInstance().dispatch<MouseMovedEvent>({ .x = static_cast<u32>(motion_notify_event->event_x), .y = static_cast<u32>(motion_notify_event->event_y) });
+                    break;
+                }
+                case XCB_CONFIGURE_NOTIFY: {
+                    xcb_configure_notify_event_t *configure_notify_event = (xcb_configure_notify_event_t *)event;
+                    if (width != configure_notify_event->width || height != configure_notify_event->height) {
+                        width = static_cast<u32>(configure_notify_event->width);
+                        height = static_cast<u32>(configure_notify_event->height);
+                        EventSystem::GetInstance().dispatch<WindowResizedEvent>({ .width = width, .height = height });
                     }
-                    case XCB_BUTTON_RELEASE: {
-                        xcb_button_release_event_t *btn_release_event = (xcb_button_release_event_t *)event;
-                        break;
+                    if ((x != configure_notify_event->x || y != configure_notify_event->y) && (configure_notify_event->x != 0 || configure_notify_event->y != 0)) {
+                        x = static_cast<u32>(configure_notify_event->x);
+                        y = static_cast<u32>(configure_notify_event->y);
+                        EventSystem::GetInstance().dispatch<WindowMovedEvent>({ .x = x, .y = y });
                     }
-                    case XCB_MOTION_NOTIFY: {
-                        xcb_motion_notify_event_t *motion_notify_event = (xcb_motion_notify_event_t *)event;
-                        break;
+                    break;
+                }
+                case XCB_CLIENT_MESSAGE: {
+                    cm = (xcb_client_message_event_t *)event;
+                    if (cm->data.data32[0] == wm_delete_window) {
+                        EventSystem::GetInstance().dispatch<WindowCloseEvent>({});
+                        alive = MG_FALSE;
                     }
-                    case XCB_CONFIGURE_NOTIFY: {
-                        xcb_configure_notify_event_t *configure_notify_event = (xcb_configure_notify_event_t *)event;
-                        MG_WARN("{} {} {} {}", configure_notify_event->x, configure_notify_event->y, configure_notify_event->width, configure_notify_event->height)
-                        break;
-                    }
-                    case XCB_CLIENT_MESSAGE: {
-                        cm = (xcb_client_message_event_t *)event;
-                        if (cm->data.data32[0] == wm_delete_window) {
-                            alive = MG_FALSE;
-                        }
-                    } break;
-                    default: break;
+                    break;
+                }
+                default:
+                    break;
                 }
                 free(event);
             }
@@ -121,12 +182,12 @@ namespace MangoEngine {
         xcb_atom_t wm_delete_window;
         xcb_atom_t wm_protocols;
 
-    no_copy_and_move_construction(X11Window)
+    no_copy_and_move_construction(XcbWindowSystem)
     };
 
-    implement_runtime_system(Window)
-        _instance.reset(new X11Window());
-    }
+    implement_runtime_system_start(WindowSystem)
+        _instance.reset(new XcbWindowSystem());
+    implement_runtime_system_end(WindowSystem, window)
 }
 
 #endif

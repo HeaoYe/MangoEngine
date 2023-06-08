@@ -1,9 +1,11 @@
 #include "MangoEngine/core/window.hpp"
 
 namespace MangoEngine {
-    Window::Window() = default;
-    Window::~Window() = default;
-    Bool Window::pull_events() {
-        return MG_TRUE;
+    WindowSystem::WindowSystem() = default;
+
+    WindowSystem::~WindowSystem() = default;
+
+    Bool WindowSystem::pull_events() {
+        return MG_FALSE;
     }
 }
