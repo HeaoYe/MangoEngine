@@ -26,6 +26,15 @@ class TestApplication : public MangoEngine::Application {
 };
 
 namespace MangoEngine {
+    void generate_engine_config(EngineConfig *engine_config) {
+        engine_config->window_x = 0;
+        engine_config->window_y = 0;
+        engine_config->window_width = 640;
+        engine_config->window_height = 640;
+        engine_config->title = "Sandbox";
+        engine_config->api = MangoEngine::RenderAPI::eVulkan;
+    }
+
     Application *create_application() {
         return new TestApplication();
     }

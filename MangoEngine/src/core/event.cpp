@@ -55,7 +55,7 @@ namespace MangoEngine {
         return ss.str();
     }
 
-    implement_runtime_system_start(EventSystem)
+    implement_runtime_system_start(EventSystem, event_system)
         _instance.reset(new EventSystem);
     implement_runtime_system_end(EventSystem, event_system)
 

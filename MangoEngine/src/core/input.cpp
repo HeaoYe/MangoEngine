@@ -1,7 +1,7 @@
 #include "MangoEngine/core/input.hpp"
 
 namespace MangoEngine {
-    implement_runtime_system_start(InputSystem)
+    implement_runtime_system_start(InputSystem, input)
         _instance.reset(new InputSystem());
     implement_runtime_system_end(InputSystem, input)
 

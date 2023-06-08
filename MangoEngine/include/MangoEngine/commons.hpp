@@ -29,7 +29,7 @@
     #define MANGO_ASSERT(expr)
 #endif
 
-#include <MangoRHI/commons.hpp>
+#include <cstdint>
 #include <sstream>
 
 namespace MangoEngine {
@@ -72,7 +72,7 @@ namespace MangoEngine {
     #define declare_runtime_system_alias(cls_name, alias) \
     extern cls_name *alias;
 
-    #define implement_runtime_system_start(cls_name, ...) \
+    #define implement_runtime_system_start(cls_name, alias, ...) \
     ::std::unique_ptr<cls_name> cls_name::_instance; \
     cls_name &cls_name::GetInstance() { \
         return *_instance; \
@@ -80,17 +80,26 @@ namespace MangoEngine {
     void cls_name::Quit() { \
         MG_INFO("Quit {} Runtime System.", #cls_name) \
         _instance.reset(); \
+        alias = nullptr; \
     } \
     void cls_name::Initialize(__VA_ARGS__) { \
         MG_INFO("Initialize {} Runtime System.", #cls_name)
     #define implement_runtime_system_end(cls_name, alias) \
         alias = &*_instance; \
     } \
-    cls_name *alias;
+    cls_name *alias = nullptr;
 
     enum class Result {
         eSuccess,
         eFailed,
+    };
+
+    enum class RenderAPI {
+        eNone,
+        eOpenGL,
+        eVulkan,
+        eDirectX,
+        eMetal,
     };
 
     enum class LogLevel : u32 {
@@ -101,6 +110,15 @@ namespace MangoEngine {
         eError,
         eFatal,
     };
+
+    struct EngineConfig {
+        u32 window_x = 0, window_y = 0;
+        u32 window_width = 320, window_height = 320;
+        const char *title = "";
+        RenderAPI api = RenderAPI::eNone;
+    };
+    extern void generate_engine_config(EngineConfig *engine_config);
+    extern EngineConfig *engine_config;
 
     struct Pos {
         u32 x;

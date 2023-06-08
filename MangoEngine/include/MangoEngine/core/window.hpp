@@ -7,9 +7,9 @@ namespace MangoEngine {
     public:
         virtual Bool pull_events();
     protected:
-        u32 x { 0 }, y { 0 };
-        u32 width { 320 }, height { 320 };
-        const char *title = "";
+        u32 x, y;
+        u32 width, height;
+        const char *title;
 
     declare_runtime_system(WindowSystem)
     };

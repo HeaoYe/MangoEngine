@@ -10,6 +10,9 @@ int main() {
     auto level = MangoEngine::LogLevel::eInfo;
     #endif
 
+    MangoEngine::engine_config = (MangoEngine::EngineConfig *)malloc(sizeof(MangoEngine::EngineConfig));
+    MangoEngine::generate_engine_config(MangoEngine::engine_config);
+
     MangoEngine::LoggerSystem::Initialize(level);
     MangoEngine::WindowSystem::Initialize();
     MangoEngine::EventSystem::Initialize();

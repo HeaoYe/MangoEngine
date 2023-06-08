@@ -9,7 +9,7 @@
 namespace MangoEngine {
     class XcbWindowSystem : public WindowSystem {
     public:
-        XcbWindowSystem() {
+        XcbWindowSystem() : WindowSystem() {
             int screen_idx;
             connection = xcb_connect(nullptr, &screen_idx);
             const xcb_setup_t *setup = xcb_get_setup(connection);
@@ -185,7 +185,7 @@ namespace MangoEngine {
     no_copy_and_move_construction(XcbWindowSystem)
     };
 
-    implement_runtime_system_start(WindowSystem)
+    implement_runtime_system_start(WindowSystem, window)
         _instance.reset(new XcbWindowSystem());
     implement_runtime_system_end(WindowSystem, window)
 }
