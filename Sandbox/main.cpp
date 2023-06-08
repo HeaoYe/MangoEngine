@@ -2,7 +2,9 @@
 
 class TestApplication : public MangoEngine::Application {
     MangoEngine::Result initialize() {
-        // MangoEngine::Logger::GetInstance().set_level(MangoEngine::LogLevel::eDebug);
+        MangoEngine::EventSystem::GetInstance().add_event_callback<MangoEngine::KeyPressedEvent>([](MangoEngine::KeyPressedEvent event) {
+            MG_INFO("Key Pressed {}", event.keycode)
+        });
         return MangoEngine::Result::eSuccess;
     }
 

@@ -30,6 +30,7 @@
 #endif
 
 #include <MangoRHI/commons.hpp>
+#include <sstream>
 
 namespace MangoEngine {
     typedef int8_t i8;

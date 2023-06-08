@@ -12,6 +12,8 @@ int main() {
 
     MangoEngine::Logger::Initialize(level);
     MangoEngine::Window::Initialize();
+    MangoEngine::EventSystem::Initialize();
+    MangoEngine::Input::Initialize();
 
     MangoEngine::Result res;
     auto *application = MangoEngine::create_application();
@@ -32,6 +34,8 @@ int main() {
         return -1;
     }
 
+    MangoEngine::Input::Quit();
+    MangoEngine::EventSystem::Quit();
     MangoEngine::Window::Quit();
     MangoEngine::Logger::Quit();
 }
