@@ -6,10 +6,12 @@ namespace MangoEngine {
     implement_runtime_system_end(InputSystem, input)
 
     InputSystem::InputSystem() {
-        memset(states, 0, sizeof(states));
+        states = new InputState[2]();
     }
 
-    InputSystem::~InputSystem() = default;
+    InputSystem::~InputSystem() {
+        delete [] states;
+    };
 
     void InputSystem::swap_state() {
         current_state = !current_state;

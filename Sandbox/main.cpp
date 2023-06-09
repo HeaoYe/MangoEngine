@@ -4,13 +4,8 @@ class TestApplication final : public MangoEngine::Application {
 public:
     MangoEngine::Result initialize() override {
         MangoEngine::event_system->add_event_callback<MangoEngine::KeyPressedEvent>([&](auto event) {
-            MG_INFO("Key Pressed {}", event.key)
-            if (event.key == 52)
-                MangoEngine::render_system->set_bg_color(0.5, 0.2, 0.9, a);
-            else if (event.key == 53)
-                MangoEngine::render_system->set_bg_color(0.2, 0.9, 0.5, a);
+            MG_INFO("Key Pressed: {}", MangoEngine::to_string(event.key))
         });
-        MangoEngine::render_system->set_bg_color(1.0, 1.0, 1.0, 1.0);
         return MangoEngine::Result::eSuccess;
     }
 
@@ -31,6 +26,7 @@ public:
         if (ImGui::Button("Button"))
             counter++;
         ImGui::SameLine();
+        ImGui::InputText("You can input something", new char[100](), 100);
         ImGui::Text("counter = %d", counter);
         ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
         ImGui::End();

@@ -44,7 +44,9 @@ namespace MangoEngine {
     enum class EventType {
         eWindowResized,
         eWindowMoved,
-        eWindowClose,
+        eWindowClosed,
+        eWindowFocusd,
+        eWindowLostFocus,
         eKeyPressed,
         eKeyReleased,
         eMousePressed,
@@ -60,11 +62,60 @@ namespace MangoEngine {
         MAX_NUM
     };
 
+    enum class Key {
+        eTab,
+        eLeftArrow,
+        eRightArrow,
+        eUpArrow,
+        eDownArrow,
+        ePageUp,
+        ePageDown,
+        eHome,
+        eEnd,
+        eInsert,
+        eDelete,
+        eBackspace,
+        eSpace,
+        eEnter,
+        eEscape,
+        eLeftCtrl, eLeftShift, eLeftAlt, eLeftSuper,
+        eRightCtrl, eRightShift, eRightAlt, eRightSuper,
+        eMenu,
+        e0, e1, e2, e3, e4, e5, e6, e7, e8, e9,
+        eA, eB, eC, eD, eE, eF, eG, eH, eI, eJ,
+        eK, eL, eM, eN, eO, eP, eQ, eR, eS, eT,
+        eU, eV, eW, eX, eY, eZ,
+        eF1, eF2, eF3, eF4, eF5, eF6,
+        eF7, eF8, eF9, eF10,eF11, eF12,
+        eApostrophe,    // '
+        eComma,         // ,
+        eMinus,         // -
+        eDot,           // .
+        eSlash,         // /
+        eSemicolon,     // ;
+        eEqual,         // =
+        eLeftBracket,   // [
+        eRightBracket,  // ]
+        eBackslash,     // '\'
+        eGraveAccent,   // `
+        eCapsLock,
+        eScrollLock,
+        eNumLock,
+        ePrintScreen,
+        ePause,
+        MAX_NUM
+    };
+    std::string to_string(Key key);
+    Bool is_char(Key key);
+    char to_char(Key key);
+
     declare_event(Window, WindowResized, u32 width, height;)
     declare_event(Window, WindowMoved, u32 x, y;)
-    declare_event(Window, WindowClose)
-    declare_event(Key, KeyPressed, u32 key;)
-    declare_event(Key, KeyReleased, u32 key;)
+    declare_event(Window, WindowClosed)
+    declare_event(Window, WindowFocusd)
+    declare_event(Window, WindowLostFocus)
+    declare_event(Key, KeyPressed, Key key;)
+    declare_event(Key, KeyReleased, Key key;)
     declare_event(Mouse, MousePressed, MouseButton button;)
     declare_event(Mouse, MouseReleased, MouseButton button;)
     declare_event(Mouse, MouseMoved, u32 x, y;)

@@ -13,6 +13,7 @@ file(GLOB ImGuiSource ${ImGuiSource} ${thirdparty_dir}/imgui/imgui/*.cpp)
 
 add_library(MangoEngine SHARED ${MangoEngineSource} ${ImGuiSource})
 
-target_include_directories(MangoEngine PUBLIC include/ ${thirdparty_dir}/imgui)
+target_include_directories(MangoEngine PUBLIC include/ PUBLIC ${thirdparty_dir}/imgui)
+target_include_directories(MangoEngine PRIVATE ${thirdparty_dir}/imgui/imgui)
 target_link_directories(MangoEngine PUBLIC ../build/MangoRHI/MangoRHI)
 target_link_libraries(MangoEngine PUBLIC MangoRHI)

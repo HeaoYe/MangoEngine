@@ -1,9 +1,12 @@
 #pragma once
 
 #include "../commons.hpp"
+#include "../core/event.hpp"
 #include "imgui/imgui.h"
 
 namespace MangoEngine {
+    ImGuiKey key2imgui(Key key);
+
     class ImGuiBackend {
     public:
         virtual ~ImGuiBackend();

@@ -9,14 +9,6 @@ namespace MangoEngine {
     }
 
     VulkanImGuiBackend::VulkanImGuiBackend() : context(dynamic_cast<MangoRHI::VulkanContext &>(render_system->get_context())) {
-        IMGUI_CHECKVERSION();
-        ImGui::CreateContext();
-        ImGuiIO &io = ImGui::GetIO();
-        io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
-        io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
-        io.DisplaySize.x = static_cast<float>(context.get_width());
-        io.DisplaySize.y = static_cast<float>(context.get_height());
-
         VkDescriptorPoolSize pool_sizes[] = {
             { VK_DESCRIPTOR_TYPE_SAMPLER, 1000 },
             { VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1000 },
@@ -63,23 +55,6 @@ namespace MangoEngine {
         ImGui_ImplVulkan_CreateFontsTexture(command.get_command_buffer());
         context.get_command_pool()->free(command);
         ImGui_ImplVulkan_DestroyFontUploadObjects();
-
-        event_system->add_event_callback<WindowResizedEvent>([&](auto &event) {
-            io.DisplaySize.x = event.width;
-            io.DisplaySize.y = event.height;
-        });
-        event_system->add_event_callback<MousePressedEvent>([&](auto &event) {
-            io.AddMouseButtonEvent(static_cast<int>(event.button), true);
-        });
-        event_system->add_event_callback<MouseReleasedEvent>([&](auto &event) {
-            io.AddMouseButtonEvent(static_cast<int>(event.button), false);
-        });
-        event_system->add_event_callback<MouseMovedEvent>([&](auto &event) {
-            io.AddMousePosEvent(event.x, event.y);
-        });
-        event_system->add_event_callback<MouseScrollEvent>([&](auto &event) {
-            io.AddMouseWheelEvent(0, event.delta);
-        });
     }
 
     VulkanImGuiBackend::~VulkanImGuiBackend() {
@@ -92,12 +67,10 @@ namespace MangoEngine {
     void VulkanImGuiBackend::begin_imgui() {
         context.get_current_command_reference().next_subpass();
         ImGui_ImplVulkan_NewFrame();
-        ImGui::NewFrame();
     }
 
     void VulkanImGuiBackend::end_imgui() {
         auto &command = reinterpret_cast<MangoRHI::VulkanCommand &>(context.get_current_command_reference());
-        ImGui::EndFrame();
         ImGui::Render();
         ImDrawData* draw_data = ImGui::GetDrawData();
         ImGui_ImplVulkan_RenderDrawData(draw_data, command.get_command_buffer());
