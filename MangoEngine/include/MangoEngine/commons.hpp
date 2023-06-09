@@ -51,6 +51,27 @@ namespace MangoEngine {
     constexpr ButtonState MG_DOWN = 1;
     #define BIT(x) (1 << x)
 
+    template<typename T>
+    struct Reference {
+    private:
+        T *data;
+    public:
+        Reference(const Reference &other) : data(other.data) {};
+        Reference &operator=(const Reference &) = default;
+        Reference(Reference &&other) : data(other.data) { other.data = nullptr; };
+        Reference &operator=(Reference &&) = default;
+        Reference() : data(nullptr) {}
+        Reference(T &data_) : data(&data_) {}
+        void clear() { data = nullptr; }
+        void set(T &data_) { data = &data_; }
+        operator const T&() const { return *data; }
+        const T &get() const { return *data; }
+        const T *operator->() const { return data; }
+        operator T&() { return *data; }
+        T &get() { return *data; }
+        T *operator->() { return data; }
+    };
+
     #define no_copy_and_move_construction(cls_name) \
     private: \
         cls_name(const cls_name &) = delete; \
@@ -70,7 +91,7 @@ namespace MangoEngine {
     no_copy_and_move_construction(cls_name)
 
     #define declare_runtime_system_alias(cls_name, alias) \
-    extern cls_name *alias;
+    extern Reference<cls_name> alias;
 
     #define implement_runtime_system_start(cls_name, alias, ...) \
     ::std::unique_ptr<cls_name> cls_name::_instance; \
@@ -78,16 +99,17 @@ namespace MangoEngine {
         return *_instance; \
     } \
     void cls_name::Quit() { \
-        MG_INFO("Quit {} Runtime System.", #cls_name) \
         _instance.reset(); \
-        alias = nullptr; \
+        alias.clear(); \
+        MG_INFO("Quit {} Runtime System.", #cls_name) \
     } \
-    void cls_name::Initialize(__VA_ARGS__) { \
-        MG_INFO("Initialize {} Runtime System.", #cls_name)
+    void cls_name::Initialize(__VA_ARGS__) {
+
     #define implement_runtime_system_end(cls_name, alias) \
-        alias = &*_instance; \
+        alias.set(*_instance); \
+        MG_INFO("Initialize {} Runtime System.", #cls_name) \
     } \
-    cls_name *alias = nullptr;
+    Reference<cls_name> alias {};
 
     enum class Result {
         eSuccess,

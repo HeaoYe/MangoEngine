@@ -1,22 +1,10 @@
 #include "MangoEngine/core/logger.hpp"
+#include <MangoRHI/logger.hpp>
 
 namespace MangoEngine {
-    ::std::unique_ptr<LoggerSystem> LoggerSystem::_instance;
-
-    LoggerSystem &LoggerSystem::GetInstance() {
-        return *_instance;
-    }
-
-    void LoggerSystem::Quit() {
-        MG_INFO("Quit Logger Runtime System.")
-        _instance.reset();
-    }
-
-    void LoggerSystem::Initialize(LogLevel level) {
-        logger = new LoggerSystem(level);
-        _instance.reset(logger);
-        MG_INFO("Initialize Logger Runtime System.")
-    }
+    implement_runtime_system_start(LoggerSystem, logger, LogLevel level)
+        _instance.reset(new LoggerSystem(level));
+    implement_runtime_system_end(LoggerSystem, logger)
 
     LoggerSystem::LoggerSystem(LogLevel level) {
         spd_logger = spdlog::stdout_color_mt("MangoEngine");
@@ -44,9 +32,25 @@ namespace MangoEngine {
         }
     }
 
-    void LoggerSystem::set_level(LogLevel level) {
-        spd_logger->set_level(level2spdlog(level));
+    MangoRHI::LogLevel level2level(LogLevel level) {
+        switch (level) {
+        case LogLevel::eTrace:
+            return MangoRHI::LogLevel::eTrace;
+        case LogLevel::eDebug:
+            return MangoRHI::LogLevel::eDebug;
+        case LogLevel::eInfo:
+            return MangoRHI::LogLevel::eInfo;
+        case LogLevel::eWarn:
+            return MangoRHI::LogLevel::eWarn;
+        case LogLevel::eError:
+            return MangoRHI::LogLevel::eError;
+        case LogLevel::eFatal:
+            return MangoRHI::LogLevel::eFatal;
+        }
     }
 
-    LoggerSystem *logger;
+    void LoggerSystem::set_level(LogLevel level) {
+        spd_logger->set_level(level2spdlog(level));
+        MangoRHI::set_logger_level(level2level(level));
+    }
 }
