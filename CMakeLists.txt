@@ -11,6 +11,7 @@ endif()
 
 if (CMAKE_BUILD_TYPE STREQUAL "Debug")
     message("DEBUG MODE")
+    add_definitions(-DMANGORHI_DEBUG)
     add_definitions(-DMANGO_DEBUG)
 endif()
 

@@ -13,11 +13,13 @@ int main() {
     MangoEngine::engine_config = new MangoEngine::EngineConfig();
     MangoEngine::generate_engine_config(MangoEngine::engine_config);
 
-    MangoEngine::LoggerSystem::Initialize(level);
+    MangoEngine::LoggerSystem::Initialize();
+    MangoEngine::logger->set_level(level);
     MangoEngine::WindowSystem::Initialize();
     MangoEngine::EventSystem::Initialize();
     MangoEngine::InputSystem::Initialize();
     MangoEngine::RenderSystem::Initialize();
+    MangoEngine::ImGuiRenderer::Initialize();
 
     MangoEngine::Result res;
     auto *application = MangoEngine::create_application();
@@ -30,7 +32,10 @@ int main() {
     while (MangoEngine::window->pull_events() != MangoEngine::MG_FALSE) {
         application->on_update();
         if (MangoEngine::render_system->begin_render() == MangoEngine::Result::eSuccess) {
-            application->on_draw();
+            application->on_draw_frame();
+            MangoEngine::imgui_renderer->begin_imgui();
+            application->on_draw_imgui();
+            MangoEngine::imgui_renderer->end_imgui();
             MangoEngine::render_system->end_render();
         }
         MangoEngine::input->swap_state();
@@ -42,6 +47,7 @@ int main() {
         return -1;
     }
 
+    MangoEngine::ImGuiRenderer::Quit();
     MangoEngine::RenderSystem::Quit();
     MangoEngine::InputSystem::Quit();
     MangoEngine::EventSystem::Quit();

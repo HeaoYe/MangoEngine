@@ -5,10 +5,18 @@
 extern int main();
 
 namespace MangoEngine {
-    constexpr u32 max_key_code = 100;
+    constexpr u32 max_key_code = static_cast<u32>(Key::MAX_NUM);
     constexpr u32 max_mouse_button = static_cast<u32>(MouseButton::MAX_NUM);
 
     class XcbWindowSystem;
+
+    struct InputState {
+        ButtonState key_states[max_key_code];
+        ButtonState mouse_button_states[max_mouse_button];
+        u32 mouse_x;
+        u32 mouse_y;
+        i32 mouse_scroll;
+    };
 
     class InputSystem {
         friend int ::main();
@@ -34,13 +42,7 @@ namespace MangoEngine {
     private:
         void swap_state();
 
-        struct InputState {
-            ButtonState key_states[max_key_code];
-            ButtonState mouse_button_states[max_mouse_button];
-            u32 mouse_x;
-            u32 mouse_y;
-            i32 mouse_scroll;
-        } states[2];
+        InputState *states;
         u8 current_state = 0;
 
     declare_runtime_system(InputSystem)

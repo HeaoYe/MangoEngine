@@ -4,8 +4,8 @@
 #include <MangoRHI/MangoRHI.hpp>
 
 namespace MangoEngine {
-    template<typename ContextInfo>
-    ContextInfo *get_context_info();
+    template<RenderAPI api>
+    extern void *get_context_info();
 
     class RenderSystem {
     public:
@@ -13,8 +13,10 @@ namespace MangoEngine {
         Result begin_render();
         Result end_render();
 
+        MangoRHI::Context &get_context();
+
     private:
-        Reference<MangoRHI::Context> context;
+        MangoRHI::Context &context;
 
     declare_runtime_system(RenderSystem)
     };
