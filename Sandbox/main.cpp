@@ -18,6 +18,7 @@ public:
         static float alpha = 0.5f;
         static int counter = 0;
         static float clear_color[3];
+        static char *buffer = new char[100]();
         ImGui::Begin("Hello, world!");
         ImGui::Text("This is some useful text.");
         ImGui::SliderFloat("float", &alpha, 0.0f, 1.0f);
@@ -26,18 +27,18 @@ public:
         if (ImGui::Button("Button"))
             counter++;
         ImGui::SameLine();
-        ImGui::InputText("You can input something", new char[100](), 100);
         ImGui::Text("counter = %d", counter);
         ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
+        ImGui::InputText(u8"中文", buffer, 100);
         ImGui::End();
 
         return MangoEngine::Result::eSuccess;
     }
 
     MangoEngine::Result on_update() override {
-        if (MangoEngine::input->is_key_down(50) == MangoEngine::MG_TRUE) {
-            MG_INFO("Key 50 is downed.")
-            MG_INFO("Current Mouse Pos is {} {}.", MangoEngine::input->get_mouse_x(), MangoEngine::input->get_mouse_pos().y)
+        if (MangoEngine::input_system->is_key_down(MangoEngine::Key::eQ) == MangoEngine::MG_TRUE) {
+            MG_INFO("Key Q is downed.")
+            MG_INFO("Current Mouse Pos is {} {}.", MangoEngine::input_system->get_mouse_x(), MangoEngine::input_system->get_mouse_pos().y)
         }
         return MangoEngine::Result::eSuccess;
     }

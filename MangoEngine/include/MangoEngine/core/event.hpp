@@ -38,6 +38,7 @@ namespace MangoEngine {
     enum class EventCategory {
         eWindow,
         eKey,
+        eInput,
         eMouse,
     };
 
@@ -49,6 +50,7 @@ namespace MangoEngine {
         eWindowLostFocus,
         eKeyPressed,
         eKeyReleased,
+        eInputChar,
         eMousePressed,
         eMouseReleased,
         eMouseMoved,
@@ -106,8 +108,6 @@ namespace MangoEngine {
         MAX_NUM
     };
     std::string to_string(Key key);
-    Bool is_char(Key key);
-    char to_char(Key key);
 
     declare_event(Window, WindowResized, u32 width, height;)
     declare_event(Window, WindowMoved, u32 x, y;)
@@ -116,10 +116,11 @@ namespace MangoEngine {
     declare_event(Window, WindowLostFocus)
     declare_event(Key, KeyPressed, Key key;)
     declare_event(Key, KeyReleased, Key key;)
+    declare_event(Input, InputChar, u32 data;)
     declare_event(Mouse, MousePressed, MouseButton button;)
     declare_event(Mouse, MouseReleased, MouseButton button;)
     declare_event(Mouse, MouseMoved, u32 x, y;)
-    declare_event(Mouse, MouseScroll, i32 delta;)
+    declare_event(Mouse, MouseScroll, i32 delta_x, delta_y;)
 
     class EventSystem {
     public:

@@ -26,7 +26,7 @@ namespace MangoEngine {
         create_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
         create_info.flags = VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT;
         create_info.maxSets = 1000 * IM_ARRAYSIZE(pool_sizes);
-        create_info.poolSizeCount = (uint32_t)IM_ARRAYSIZE(pool_sizes);
+        create_info.poolSizeCount = static_cast<u32>(IM_ARRAYSIZE(pool_sizes));
         create_info.pPoolSizes = pool_sizes;
         vkCreateDescriptorPool(context.get_device()->get_logical_device(), &create_info, context.get_allocator(), &descriptor_pool);
 
@@ -60,7 +60,6 @@ namespace MangoEngine {
     VulkanImGuiBackend::~VulkanImGuiBackend() {
         vkDeviceWaitIdle(context.get_device()->get_logical_device());
         ImGui_ImplVulkan_Shutdown();
-        ImGui::DestroyContext();
         vkDestroyDescriptorPool(context.get_device()->get_logical_device(), descriptor_pool, context.get_allocator());
     }
 
