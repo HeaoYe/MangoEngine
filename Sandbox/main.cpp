@@ -4,7 +4,12 @@ class TestApplication : public MangoEngine::Application {
     MangoEngine::Result initialize() {
         MangoEngine::event_system->add_event_callback<MangoEngine::KeyPressedEvent>([](MangoEngine::KeyPressedEvent event) {
             MG_INFO("Key Pressed {}", event.key)
+            if (event.key == 52)
+                MangoEngine::render_system->set_bg_color(0.5, 0.2, 0.9, 1.0);
+            else if (event.key == 53)
+                MangoEngine::render_system->set_bg_color(0.2, 0.9, 0.5, 1.0);
         });
+        MangoEngine::render_system->set_bg_color(1.0, 1.0, 1.0, 1.0);
         return MangoEngine::Result::eSuccess;
     }
 
@@ -26,6 +31,15 @@ class TestApplication : public MangoEngine::Application {
 };
 
 namespace MangoEngine {
+    void generate_engine_config(EngineConfig *engine_config) {
+        engine_config->window_x = 0;
+        engine_config->window_y = 0;
+        engine_config->window_width = 640;
+        engine_config->window_height = 640;
+        engine_config->title = "Sandbox";
+        engine_config->api = MangoEngine::RenderAPI::eVulkan;
+    }
+
     Application *create_application() {
         return new TestApplication();
     }
