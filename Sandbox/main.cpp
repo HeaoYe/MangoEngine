@@ -1,13 +1,14 @@
 #include <MangoEngine/entry.hpp>
 
 class TestApplication : public MangoEngine::Application {
+public:
     MangoEngine::Result initialize() {
-        MangoEngine::event_system->add_event_callback<MangoEngine::KeyPressedEvent>([](MangoEngine::KeyPressedEvent event) {
+        MangoEngine::event_system->add_event_callback<MangoEngine::KeyPressedEvent>([&](auto event) {
             MG_INFO("Key Pressed {}", event.key)
             if (event.key == 52)
-                MangoEngine::render_system->set_bg_color(0.5, 0.2, 0.9, 1.0);
+                MangoEngine::render_system->set_bg_color(0.5, 0.2, 0.9, a);
             else if (event.key == 53)
-                MangoEngine::render_system->set_bg_color(0.2, 0.9, 0.5, 1.0);
+                MangoEngine::render_system->set_bg_color(0.2, 0.9, 0.5, a);
         });
         MangoEngine::render_system->set_bg_color(1.0, 1.0, 1.0, 1.0);
         return MangoEngine::Result::eSuccess;
@@ -28,6 +29,9 @@ class TestApplication : public MangoEngine::Application {
     MangoEngine::Result quit() {
         return MangoEngine::Result::eSuccess;
     }
+
+private:
+    float a = 1.0f;
 };
 
 namespace MangoEngine {

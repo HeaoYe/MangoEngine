@@ -14,7 +14,7 @@ namespace MangoEngine {
         Result end_render();
 
     private:
-        Reference<MangoRHI::Context> context;
+        MangoRHI::Context &context;
 
     declare_runtime_system(RenderSystem)
     };
