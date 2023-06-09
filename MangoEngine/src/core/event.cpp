@@ -39,15 +39,21 @@ namespace MangoEngine {
         return ss.str();
     }
 
+    implement_event(InputChar) {
+        std::stringstream ss;
+        ss << get_type_name() << ": " << "char: " << static_cast<wchar_t>(data);
+        return ss.str();
+    }
+
     implement_event(MousePressed) {
         std::stringstream ss;
-        ss << get_type_name() << ": " << "button: " << (u32)button;
+        ss << get_type_name() << ": " << "button: " << static_cast<u32>(button);
         return ss.str();
     }
 
     implement_event(MouseReleased) {
         std::stringstream ss;
-        ss << get_type_name() << ": " << "button: " << (u32)button;
+        ss << get_type_name() << ": " << "button: " << static_cast<u32>(button);
         return ss.str();
     }
 
@@ -59,13 +65,11 @@ namespace MangoEngine {
 
     implement_event(MouseScroll) {
         std::stringstream ss;
-        ss << get_type_name() << ": " << "delta: " << delta;
+        ss << get_type_name() << ": " << "delta_x: " << delta_x << ", delta_y: " << delta_y;
         return ss.str();
     }
 
-    implement_runtime_system_start(EventSystem, event_system)
-        _instance.reset(new EventSystem);
-    implement_runtime_system_end(EventSystem, event_system)
+    implement_runtime_system(EventSystem, event_system)
 
     EventSystem::EventSystem() = default;
 
@@ -173,68 +177,6 @@ namespace MangoEngine {
         }
     }
 
-    #undef key2string
-
-    Bool is_char(Key key) {
-        return (static_cast<u32>(Key::e0) <= static_cast<u32>(key) &&
-            static_cast<u32>(key) <= static_cast<u32>(Key::eZ)) ||
-            (static_cast<u32>(Key::eApostrophe) <= static_cast<u32>(key) &&
-            static_cast<u32>(key) <= static_cast<u32>(Key::eGraveAccent));
-    }
-
-    char to_char(Key key) {
-        switch (key) {
-        key2string_(0, '0')
-        key2string_(1, '1')
-        key2string_(2, '2')
-        key2string_(3, '3')
-        key2string_(4, '4')
-        key2string_(5, '5')
-        key2string_(6, '6')
-        key2string_(7, '7')
-        key2string_(8, '8')
-        key2string_(9, '9')
-        key2string_(A, 'A')
-        key2string_(B, 'B')
-        key2string_(C, 'C')
-        key2string_(D, 'D')
-        key2string_(E, 'E')
-        key2string_(F, 'F')
-        key2string_(G, 'G')
-        key2string_(H, 'H')
-        key2string_(I, 'I')
-        key2string_(J, 'J')
-        key2string_(K, 'K')
-        key2string_(L, 'L')
-        key2string_(M, 'M')
-        key2string_(N, 'N')
-        key2string_(O, 'O')
-        key2string_(P, 'P')
-        key2string_(Q, 'Q')
-        key2string_(R, 'R')
-        key2string_(S, 'S')
-        key2string_(T, 'T')
-        key2string_(U, 'U')
-        key2string_(V, 'V')
-        key2string_(W, 'W')
-        key2string_(X, 'X')
-        key2string_(Y, 'Y')
-        key2string_(Z, 'Z')
-        key2string_(Apostrophe, '\'')
-        key2string_(Comma, ',')
-        key2string_(Minus, '-')
-        key2string_(Dot, '.')
-        key2string_(Slash, '/')
-        key2string_(Semicolon, ';')
-        key2string_(Equal, '=')
-        key2string_(LeftBracket, '[')
-        key2string_(RightBracket, ']')
-        key2string_(Backslash, '\\')
-        key2string_(GraveAccent, '`')
-        default:
-            return '?';
-        }
-    }
-
     #undef key2string_
+    #undef key2string
 }

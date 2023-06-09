@@ -5,8 +5,6 @@
 #include "imgui/imgui.h"
 
 namespace MangoEngine {
-    ImGuiKey key2imgui(Key key);
-
     class ImGuiBackend {
     public:
         virtual ~ImGuiBackend();
@@ -25,7 +23,7 @@ namespace MangoEngine {
     private:
         std::unique_ptr<ImGuiBackend> backend;
 
-    declare_runtime_system(ImGuiRenderer, ImGuiBackend *backend);
+    declare_runtime_system(ImGuiRenderer);
     };
     declare_runtime_system_alias(ImGuiRenderer, imgui_renderer)
 }

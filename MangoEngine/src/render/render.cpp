@@ -2,27 +2,10 @@
 #include <MangoRHI/MangoRHI.hpp>
 
 namespace MangoEngine {
-    implement_runtime_system_start(RenderSystem, render_system)
-        _instance.reset(new RenderSystem());
-    implement_runtime_system_end(RenderSystem, render_system)
-
-    MangoRHI::API render_api2api(RenderAPI api) {
-        switch (api) {
-        case RenderAPI::eNone:
-            return MangoRHI::API::eNone;
-        case RenderAPI::eOpenGL:
-            return MangoRHI::API::eOpenGL;
-        case RenderAPI::eVulkan:
-            return MangoRHI::API::eVulkan;
-        case RenderAPI::eDirectX:
-            return MangoRHI::API::eDirectX;
-        case RenderAPI::eMetal:
-            return MangoRHI::API::eMetal;
-        }
-    }
+    implement_runtime_system(RenderSystem, render_system)
 
     RenderSystem::RenderSystem() : context([]() -> MangoRHI::Context & {
-        MangoRHI::initialize(render_api2api(engine_config->api));
+        MangoRHI::initialize(transform<RenderAPI, MangoRHI::API>(engine_config->api));
         return MangoRHI::get_context();
     }()) {
         switch (engine_config->api) {

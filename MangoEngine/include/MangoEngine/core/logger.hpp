@@ -43,12 +43,16 @@ namespace MangoEngine {
 
     declare_runtime_system(LoggerSystem)
     };
-    declare_runtime_system_alias(LoggerSystem, logger)
+    declare_runtime_system_alias(LoggerSystem, logger_system)
 }
 
-#define MG_TRACE(...) ::MangoEngine::logger->trace(__VA_ARGS__);
-#define MG_DEBUG(...) ::MangoEngine::logger->debug(__VA_ARGS__);
-#define MG_INFO(...) ::MangoEngine::logger->info(__VA_ARGS__);
-#define MG_WARN(...) ::MangoEngine::logger->warn(__VA_ARGS__);
-#define MG_ERROR(...) ::MangoEngine::logger->error(__VA_ARGS__);
-#define MG_FATAL(...) ::MangoEngine::logger->fatal(__VA_ARGS__);
+#define MG_TRACE(...) ::MangoEngine::logger_system->trace(__VA_ARGS__);
+#define MG_DEBUG(...) ::MangoEngine::logger_system->debug(__VA_ARGS__);
+#define MG_INFO(...) ::MangoEngine::logger_system->info(__VA_ARGS__);
+#define MG_WARN(...) ::MangoEngine::logger_system->warn(__VA_ARGS__);
+#define MG_ERROR(...) ::MangoEngine::logger_system->error(__VA_ARGS__);
+#define MG_FATAL(...) { \
+    ::MangoEngine::logger_system->fatal(__VA_ARGS__); \
+    ::MangoEngine::logger_system->fatal("Fatal at {}:{} {}", __FILE__, __LINE__, __PRETTY_FUNCTION__); \
+    throw std::runtime_error(""); \
+}

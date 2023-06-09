@@ -6,8 +6,6 @@
 #elif defined (__unix__)
     #define MANGO_PLATFORM_UNIX
     #define MANGO_API
-    #define MANGO_USE_XCB_WINDOW
-    // #define MANGO_USE_WAYLAND_WINDOW
 #elif defined (__APPLE__)
     #define MANGO_PLATFORM_APPLE
     #error Not impl for mac and ios.
@@ -58,9 +56,9 @@ namespace MangoEngine {
         cls_name &operator=(const cls_name &) = delete; \
         cls_name &operator=(cls_name &&) = delete;
 
-    #define declare_runtime_system(cls_name, ...) \
+    #define declare_runtime_system(cls_name) \
     public: \
-        cls_name(__VA_ARGS__); \
+        cls_name(); \
         virtual ~cls_name(); \
         static void Initialize(); \
         static void Quit(); \
@@ -72,8 +70,9 @@ namespace MangoEngine {
     #define declare_runtime_system_alias(cls_name, alias) \
     extern cls_name *alias;
 
-    #define implement_runtime_system_start(cls_name, alias) \
+    #define implement_runtime_system(cls_name, alias) \
     ::std::unique_ptr<cls_name> cls_name::_instance; \
+    cls_name *alias = nullptr; \
     cls_name &cls_name::GetInstance() { \
         return *_instance; \
     } \
@@ -82,13 +81,11 @@ namespace MangoEngine {
         _instance.reset(); \
         alias = nullptr; \
     } \
-    void cls_name::Initialize() {
-
-    #define implement_runtime_system_end(cls_name, alias) \
+    void cls_name::Initialize() { \
+        _instance = std::make_unique<cls_name>(); \
         alias = _instance.get(); \
         MG_INFO("Initialize {} Runtime System.", #cls_name) \
-    } \
-    cls_name *alias {};
+    }
 
     enum class Result {
         eSuccess,
@@ -125,6 +122,9 @@ namespace MangoEngine {
         u32 x;
         u32 y;
     };
+
+    template<typename src, typename dst>
+    dst transform(src data);
 }
 
 #include "core/logger.hpp"
