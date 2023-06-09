@@ -41,7 +41,7 @@ namespace MangoEngine {
     private:
         std::shared_ptr<spdlog::logger> spd_logger;
 
-    declare_runtime_system(LoggerSystem, LogLevel level)
+    declare_runtime_system(LoggerSystem)
     };
     declare_runtime_system_alias(LoggerSystem, logger)
 }

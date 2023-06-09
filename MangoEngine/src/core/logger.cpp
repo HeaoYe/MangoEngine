@@ -2,13 +2,12 @@
 #include <MangoRHI/logger.hpp>
 
 namespace MangoEngine {
-    implement_runtime_system_start(LoggerSystem, logger, LogLevel level)
-        _instance.reset(new LoggerSystem(level));
+    implement_runtime_system_start(LoggerSystem, logger)
+        _instance.reset(new LoggerSystem());
     implement_runtime_system_end(LoggerSystem, logger)
 
-    LoggerSystem::LoggerSystem(LogLevel level) {
+    LoggerSystem::LoggerSystem() {
         spd_logger = spdlog::stdout_color_mt("MangoEngine");
-        set_level(level);
     }
 
     LoggerSystem::~LoggerSystem() {

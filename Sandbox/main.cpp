@@ -1,8 +1,8 @@
 #include <MangoEngine/entry.hpp>
 
-class TestApplication : public MangoEngine::Application {
+class TestApplication final : public MangoEngine::Application {
 public:
-    MangoEngine::Result initialize() {
+    MangoEngine::Result initialize() override {
         MangoEngine::event_system->add_event_callback<MangoEngine::KeyPressedEvent>([&](auto event) {
             MG_INFO("Key Pressed {}", event.key)
             if (event.key == 52)
@@ -14,11 +14,31 @@ public:
         return MangoEngine::Result::eSuccess;
     }
 
-    MangoEngine::Result on_draw() {
+    MangoEngine::Result on_draw_frame() override {
         return MangoEngine::Result::eSuccess;
     }
 
-    MangoEngine::Result on_update() {
+    MangoEngine::Result on_draw_imgui() override {
+        ImGuiIO &io = ImGui::GetIO();
+        static float alpha = 0.5f;
+        static int counter = 0;
+        static float clear_color[3];
+        ImGui::Begin("Hello, world!");
+        ImGui::Text("This is some useful text.");
+        ImGui::SliderFloat("float", &alpha, 0.0f, 1.0f);
+        ImGui::ColorEdit3("clear color", (float*)&clear_color);
+        MangoEngine::render_system->set_bg_color(clear_color[0], clear_color[1], clear_color[2], alpha);
+        if (ImGui::Button("Button"))
+            counter++;
+        ImGui::SameLine();
+        ImGui::Text("counter = %d", counter);
+        ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
+        ImGui::End();
+
+        return MangoEngine::Result::eSuccess;
+    }
+
+    MangoEngine::Result on_update() override {
         if (MangoEngine::input->is_key_down(50) == MangoEngine::MG_TRUE) {
             MG_INFO("Key 50 is downed.")
             MG_INFO("Current Mouse Pos is {} {}.", MangoEngine::input->get_mouse_x(), MangoEngine::input->get_mouse_pos().y)
@@ -26,7 +46,7 @@ public:
         return MangoEngine::Result::eSuccess;
     }
 
-    MangoEngine::Result quit() {
+    MangoEngine::Result quit() override {
         return MangoEngine::Result::eSuccess;
     }
 

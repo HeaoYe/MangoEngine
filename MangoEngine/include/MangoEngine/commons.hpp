@@ -62,7 +62,7 @@ namespace MangoEngine {
     public: \
         cls_name(__VA_ARGS__); \
         virtual ~cls_name(); \
-        static void Initialize(__VA_ARGS__); \
+        static void Initialize(); \
         static void Quit(); \
         static cls_name &GetInstance(); \
     private: \
@@ -72,17 +72,17 @@ namespace MangoEngine {
     #define declare_runtime_system_alias(cls_name, alias) \
     extern cls_name *alias;
 
-    #define implement_runtime_system_start(cls_name, alias, ...) \
+    #define implement_runtime_system_start(cls_name, alias) \
     ::std::unique_ptr<cls_name> cls_name::_instance; \
     cls_name &cls_name::GetInstance() { \
         return *_instance; \
     } \
     void cls_name::Quit() { \
+        MG_INFO("Quit {} Runtime System.", #cls_name) \
         _instance.reset(); \
         alias = nullptr; \
-        MG_INFO("Quit {} Runtime System.", #cls_name) \
     } \
-    void cls_name::Initialize(__VA_ARGS__) {
+    void cls_name::Initialize() {
 
     #define implement_runtime_system_end(cls_name, alias) \
         alias = _instance.get(); \

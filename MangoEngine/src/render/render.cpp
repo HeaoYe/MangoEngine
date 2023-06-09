@@ -33,7 +33,7 @@ namespace MangoEngine {
             MG_FATAL("Not impl for OpenGL yet.")
             break;
         case RenderAPI::eVulkan:
-            context.set_api_info(get_context_info<MangoRHI::VulkanContextInfo>());
+            context.set_api_info(get_context_info<RenderAPI::eVulkan>());
             break;
         case RenderAPI::eDirectX:
             MG_FATAL("Not impl for DirectX yet.")
@@ -49,6 +49,17 @@ namespace MangoEngine {
         auto &render_pass = context.get_render_pass_reference();
         render_pass.add_output_render_target(MANGORHI_SURFACE_RENDER_TARGET_NAME, MangoRHI::RenderTargetLayout::eColor);
         render_pass.add_subpass("main", MangoRHI::PipelineBindPoint::eGraphicsPipeline);
+        render_pass.add_output_render_target(MANGORHI_SURFACE_RENDER_TARGET_NAME, MangoRHI::RenderTargetLayout::eColor);
+        render_pass.add_subpass("imgui", MangoRHI::PipelineBindPoint::eGraphicsPipeline);
+        render_pass.add_dependency({
+            .name = "main",
+            .stage = MangoRHI::PipelineStage::eColorOutput,
+            .access = MangoRHI::Access::eColorRenderTargetWrite,
+        }, {
+            .name = "imgui",
+            .stage = MangoRHI::PipelineStage::eColorOutput,
+            .access = MangoRHI::Access::eColorRenderTargetWrite,
+        });
 
         context.create();
     }
@@ -73,5 +84,9 @@ namespace MangoEngine {
             return Result::eFailed;
         }
         return Result::eSuccess;
+    }
+
+    MangoRHI::Context &RenderSystem::get_context() {
+        return context;
     }
 }

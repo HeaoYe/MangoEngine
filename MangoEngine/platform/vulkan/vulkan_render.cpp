@@ -7,7 +7,7 @@ VkSurfaceKHR surface_create_callback(VkInstance instance, VkAllocationCallbacks 
     VkSurfaceKHR surface;
     VkXcbSurfaceCreateInfoKHR create_info {};
     create_info.sType = VK_STRUCTURE_TYPE_XCB_SURFACE_CREATE_INFO_KHR;
-    MangoEngine::XcbWindowSystem &xcb_window = (MangoEngine::XcbWindowSystem &)*MangoEngine::window;
+    MangoEngine::XcbWindowSystem &xcb_window = dynamic_cast<MangoEngine::XcbWindowSystem &>(*MangoEngine::window);
     create_info.connection = xcb_window.get_connection();
     create_info.window = xcb_window.get_window();
     if (vkCreateXcbSurfaceKHR(instance, &create_info, allocator, &surface) != VK_SUCCESS) {
@@ -25,7 +25,7 @@ std::vector<const char *> &get_extensions() {
 
 namespace MangoEngine {
     template <>
-    MangoRHI::VulkanContextInfo *get_context_info<MangoRHI::VulkanContextInfo>() {
+    void *get_context_info<RenderAPI::eVulkan>() {
         MangoRHI::VulkanContextInfo *info = new MangoRHI::VulkanContextInfo();
         auto &extensions = get_extensions();
         info->extensions = extensions.data();
