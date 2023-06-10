@@ -11,10 +11,11 @@ namespace MangoEngine {
         this->size = size;
     }
 
-    RenderCommand::RenderCommand(RenderSystem &render_system) : vertex_buffer(render_system.get_context().get_resource_manager_reference().create_vertex_buffer(sizeof(QuadInstance))) {
+    RenderCommand::RenderCommand(RenderSystem &render_system) {
         _current_vertex_buffer_offset = 0;
         _current_texture_slot = 0;
         quads.reserve(render_command_max_quad_buffer_size);
+        vertex_buffer.reset(render_system.get_context().get_resource_factory_reference().create_vertex_buffer(sizeof(QuadInstance)).release());
     }
 
     RenderCommand::~RenderCommand() {
@@ -29,7 +30,7 @@ namespace MangoEngine {
     }
 
     void RenderCommand::flush() {
-        vertex_buffer.write_data(quads.data(), quads.size(), _current_vertex_buffer_offset);
+        vertex_buffer->write_data(quads.data(), quads.size(), _current_vertex_buffer_offset);
         _current_vertex_buffer_offset += quads.size();
         quads.clear();
         _current_texture_slot = 0;
@@ -39,7 +40,7 @@ namespace MangoEngine {
         if (quads.size() > 0) {
             flush();
         }
-        command.bind_vertex_buffer(vertex_buffer, 0);
+        command.bind_vertex_buffer(*vertex_buffer, 0);
         command.draw_instances(6, _current_vertex_buffer_offset, 0, 0);
         _current_vertex_buffer_offset = 0;
     }

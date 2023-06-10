@@ -19,8 +19,8 @@ namespace MangoEngine {
 
     private:
         MangoRHI::Context &context;
-        MangoRHI::ShaderProgram *quad_shader_program;
-        MangoRHI::DescriptorSet *descriptor_set;
+        std::unique_ptr<MangoRHI::ShaderProgram> quad_shader_program;
+        std::weak_ptr<MangoRHI::DescriptorSet> descriptor_set;
         MangoRHI::Viewport viewport;
         std::unique_ptr<RenderCommand> render_command;
 

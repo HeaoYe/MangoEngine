@@ -11,8 +11,8 @@ public:
 
     MangoEngine::Result on_draw_frame() override {
         auto &command = MangoEngine::render_system->get_render_command();
-        command.draw_quad(MangoEngine::input_system->get_last_mouse_pos(), size);
         command.draw_quad({ 320, 320 }, { 320, 320 }, { 0.05, 0.9 , 0.99, 0.15f });
+        command.draw_quad(MangoEngine::input_system->get_last_mouse_pos(), size);
         return MangoEngine::Result::eSuccess;
     }
 

@@ -40,6 +40,6 @@ namespace MangoEngine {
         std::vector<QuadInstance> quads;
         u32 _current_vertex_buffer_offset;
         u32 _current_texture_slot;
-        MangoRHI::VertexBuffer &vertex_buffer;
+        std::unique_ptr<MangoRHI::VertexBuffer> vertex_buffer;
     };
 }
