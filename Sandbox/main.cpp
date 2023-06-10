@@ -14,8 +14,7 @@ public:
         auto &command = MangoEngine::render_system->get_render_command();
         camera->bind();
         command.draw_quad({ MangoEngine::input_system->get_last_mouse_x() - 320, 320 - MangoEngine::input_system->get_last_mouse_y(), -0.000001 }, 320, { 1.0, 0.8, 0.4, 0.5f });
-
-        command.draw_quad({ 0, 0 }, { 320, 320 }, { 0.05, 0.9 , 0.99, 0.5f });
+        command.draw_quad({ 0, 0 }, { 320, 320 }, rotate, { 0.05, 0.9 , 0.99, 0.5f });
         return MangoEngine::Result::eSuccess;
     }
 
@@ -58,6 +57,7 @@ public:
         if (MangoEngine::input_system->is_key_down(MangoEngine::Key::eD) == MangoEngine::MG_TRUE) {
             camera->pos.x += 150.0f * dt;
         }
+        rotate += 3.14 * dt;
         camera->zoom = zoom;
         camera->update();
         return MangoEngine::Result::eSuccess;
@@ -69,6 +69,7 @@ public:
 
 private:
     float zoom = 1.0f;
+    float rotate = 0.0f;
     MangoEngine::Camera *camera;
 };
 

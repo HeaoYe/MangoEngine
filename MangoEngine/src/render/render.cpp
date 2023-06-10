@@ -38,8 +38,8 @@ namespace MangoEngine {
             .src_color_factor = MangoRHI::BlendFactor::eSrcAlpha,
             .dst_color_factor = MangoRHI::BlendFactor::eOneMinusSrcAlpha,
             .color_op = MangoRHI::BlendOp::eAdd,
-            .src_alpha_factor = MangoRHI::BlendFactor::eZero,
-            .dst_alpha_factor = MangoRHI::BlendFactor::eOne,
+            .src_alpha_factor = MangoRHI::BlendFactor::eOne,
+            .dst_alpha_factor = MangoRHI::BlendFactor::eZero,
             .alpha_op = MangoRHI::BlendOp::eAdd
         });
         render_pass.set_depth_render_target("depth", MangoRHI::RenderTargetLayout::eDepth);
@@ -62,6 +62,7 @@ namespace MangoEngine {
         quad_shader_program.reset(resource_factory.create_shader_program("main").release());
         quad_shader_program->add_vertex_attribute(MangoRHI::VertexInputType::eFloat3, sizeof(glm::vec3));
         quad_shader_program->add_vertex_attribute(MangoRHI::VertexInputType::eFloat2, sizeof(glm::vec2));
+        quad_shader_program->add_vertex_attribute(MangoRHI::VertexInputType::eFloat, sizeof(f32));
         quad_shader_program->add_vertex_attribute(MangoRHI::VertexInputType::eFloat4, sizeof(glm::vec4));
         quad_shader_program->add_vertex_attribute(MangoRHI::VertexInputType::eInt, sizeof(i32));
         quad_shader_program->add_vertex_binding(MangoRHI::VertexInputRate::ePerInstance);

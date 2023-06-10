@@ -2,8 +2,9 @@
 
 layout(location = 0) in vec3 in_pos;
 layout(location = 1) in vec2 in_size;
-layout(location = 2) in vec4 in_color;
-layout(location = 3) in int texture_slot;
+layout(location = 2) in float in_rotate;
+layout(location = 3) in vec4 in_color;
+layout(location = 4) in int texture_slot;
 
 layout(binding = 0) uniform ViewProject {
     mat4 view;
@@ -22,7 +23,10 @@ vec2 quad[4] = vec2[](
 );
 
 void main() {
-    vec2 quad_pos = quad[gl_VertexIndex / 3 + gl_VertexIndex % 3];
+    float s = sin(in_rotate);
+    float c = cos(in_rotate);
+
+    vec2 quad_pos = mat2(c, s, -s, c) * quad[gl_VertexIndex / 3 + gl_VertexIndex % 3];
     gl_Position = vp.project * vp.view * vec4(quad_pos * in_size + in_pos.xy, in_pos.z, 1);
     frag_uv = quad_pos + 0.5;
     frag_color = in_color;

@@ -2,7 +2,7 @@
 #include "MangoEngine/render/render.hpp"
 
 namespace MangoEngine {
-    QuadInstance::QuadInstance(glm::vec3 pos, glm::vec2 size, glm::vec4 color, int texture_slot) : pos(pos), size(size), color(color), texture_slot(texture_slot) {}
+    QuadInstance::QuadInstance(glm::vec3 pos, glm::vec2 size, f32 rotate, glm::vec4 color, int texture_slot) : pos(pos), size(size), rotate(rotate), color(color), texture_slot(texture_slot) {}
 
     RenderCommand::RenderCommand(RenderSystem &render_system) {
         _current_vertex_buffer_offset = 0;
@@ -15,8 +15,8 @@ namespace MangoEngine {
         quads.clear();
     }
 
-    void RenderCommand::draw_quad(glm::vec3 pos, glm::vec2 size, glm::vec4 color) {
-        quads.emplace_back(pos, size, color, -1);
+    void RenderCommand::draw_quad(glm::vec3 pos, glm::vec2 size, f32 rotate, glm::vec4 color) {
+        quads.emplace_back(pos, size, rotate, color, -1);
         if (quads.size() == render_command_max_quad_buffer_size) {
             flush();
         }
