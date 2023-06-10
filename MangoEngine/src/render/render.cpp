@@ -32,6 +32,8 @@ namespace MangoEngine {
         context.set_multisample_count(MangoRHI::MultisampleCount::e1);
 
         auto &render_pass = context.get_render_pass_reference();
+        render_pass.create_render_target("depth", MangoRHI::RenderTargetUsage::eDepth);
+        context.set_clear_value("depth", { .depth_stencil = { .depth = 1.0f, .stencil = 1 } });
         render_pass.add_output_render_target(MANGORHI_SURFACE_RENDER_TARGET_NAME, MangoRHI::RenderTargetLayout::eColor, {
             .src_color_factor = MangoRHI::BlendFactor::eSrcAlpha,
             .dst_color_factor = MangoRHI::BlendFactor::eOneMinusSrcAlpha,
@@ -40,6 +42,7 @@ namespace MangoEngine {
             .dst_alpha_factor = MangoRHI::BlendFactor::eOne,
             .alpha_op = MangoRHI::BlendOp::eAdd
         });
+        render_pass.set_depth_render_target("depth", MangoRHI::RenderTargetLayout::eDepth);
         render_pass.add_subpass("main", MangoRHI::PipelineBindPoint::eGraphicsPipeline);
         render_pass.add_output_render_target(MANGORHI_SURFACE_RENDER_TARGET_NAME, MangoRHI::RenderTargetLayout::eColor);
         render_pass.add_subpass("imgui", MangoRHI::PipelineBindPoint::eGraphicsPipeline);
@@ -67,6 +70,7 @@ namespace MangoEngine {
         quad_shader_program->attach_vertex_shader(*builtin_quad_vert_shader, "main");
         quad_shader_program->attach_fragment_shader(*builtin_quad_frag_shader, "main");
         quad_shader_program->set_cull_mode(MangoRHI::CullMode::eNone);
+        quad_shader_program->set_depth_test_enabled(MangoRHI::MG_TRUE);
         descriptor_set = quad_shader_program->create_descriptor_set();
         auto &empty_texture = *resource_factory.create_empty_texture().release();
         descriptor_set.lock()->add_uniforms_descriptor(MangoRHI::DescriptorStage::eVertex, sizeof(glm::mat4) * 2, 1);

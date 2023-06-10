@@ -11,7 +11,7 @@ namespace MangoEngine {
     }
 
     void OrthographicCamera::update() {
-        view() = glm::scale(glm::lookAt(pos, { pos.x, pos.y, pos.z - 1 }, { 0, 1, 0 }), { zoom, zoom, 1 / depth });
+        view() = glm::scale(glm::mat4(1), { zoom, zoom, 1.0f / depth }) * glm::lookAt(pos, { pos.x, pos.y, pos.z - 1 }, { 0, 1, 0 });
         project() = glm::ortho(-size.x * 0.5f, size.x * 0.5f, size.y * 0.5f, -size.y * 0.5f);
     }
 }

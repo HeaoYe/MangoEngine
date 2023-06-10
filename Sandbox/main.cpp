@@ -13,10 +13,9 @@ public:
     MangoEngine::Result on_draw_frame() override {
         auto &command = MangoEngine::render_system->get_render_command();
         camera->bind();
-        command.draw_quad({ 0, 0 }, { 320, 320 }, { 0.05, 0.9 , 0.99, 0.15f });
-        auto p = MangoEngine::input_system->get_last_mouse_pos();
-        p = glm::ivec2(p.x - 320, 320 - p.y);
-        command.draw_quad(p, 320);
+        command.draw_quad({ MangoEngine::input_system->get_last_mouse_x() - 320, 320 - MangoEngine::input_system->get_last_mouse_y(), -0.000001 }, 320, { 1.0, 0.8, 0.4, 0.5f });
+
+        command.draw_quad({ 0, 0 }, { 320, 320 }, { 0.05, 0.9 , 0.99, 0.5f });
         return MangoEngine::Result::eSuccess;
     }
 
@@ -29,7 +28,7 @@ public:
         ImGui::Text("This is some useful text.");
         ImGui::SliderFloat("float", &zoom, 0.1f, 2.0f);
         ImGui::ColorEdit3("clear color", (float*)&clear_color);
-        MangoEngine::render_system->set_bg_color(clear_color[0], clear_color[1], clear_color[2], 1.0f);
+        MangoEngine::render_system->set_bg_color(clear_color[0], clear_color[1], clear_color[2], 0.0f);
         if (ImGui::Button("Button"))
             counter++;
         ImGui::SameLine();
