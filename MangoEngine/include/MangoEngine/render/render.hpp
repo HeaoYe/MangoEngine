@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../commons.hpp"
-#include <MangoRHI/MangoRHI.hpp>
+#include "command.hpp"
 
 namespace MangoEngine {
     template<RenderAPI api>
@@ -14,9 +14,15 @@ namespace MangoEngine {
         Result end_render();
 
         MangoRHI::Context &get_context();
+        const MangoRHI::Viewport &get_viewport() const { return viewport; }
+        RenderCommand &get_render_command() { return *render_command; }
 
     private:
         MangoRHI::Context &context;
+        MangoRHI::ShaderProgram *quad_shader_program;
+        MangoRHI::DescriptorSet *descriptor_set;
+        MangoRHI::Viewport viewport;
+        std::unique_ptr<RenderCommand> render_command;
 
     declare_runtime_system(RenderSystem)
     };

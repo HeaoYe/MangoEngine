@@ -30,6 +30,9 @@
 #include <cstdint>
 #include <sstream>
 
+#include <MangoRHI/MangoRHI.hpp>
+#include <glm/glm.hpp>
+
 namespace MangoEngine {
     typedef int8_t i8;
     typedef int16_t i16;
@@ -117,11 +120,6 @@ namespace MangoEngine {
     };
     extern void generate_engine_config(EngineConfig *engine_config);
     extern EngineConfig *engine_config;
-
-    struct Pos {
-        u32 x;
-        u32 y;
-    };
 
     template<typename src, typename dst>
     dst transform(src data);

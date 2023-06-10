@@ -1,25 +1,22 @@
 #pragma once
 
 #include "../commons.hpp"
-#include <GLFW/glfw3.h>
 
 namespace MangoEngine {
-    class WindowSystem;
-
-    struct UserPointer {
-    };
-
     class WindowSystem {
     public:
         Bool pull_events();
-        GLFWwindow *get_glfw_window() { return glfw_window; }
+        void *get_native_pointer() { return native_pointer; }
+        u32 get_x() const { return x; }
+        u32 get_y() const { return y; }
+        u32 get_width() const { return width; }
+        u32 get_height() const { return height; }
 
     private:
         u32 x, y;
         u32 width, height;
         const char *title;
-        GLFWwindow *glfw_window;
-        std::unique_ptr<UserPointer> user_pointer;
+        void *native_pointer;
 
     declare_runtime_system(WindowSystem)
     };

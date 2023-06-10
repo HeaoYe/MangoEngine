@@ -1,4 +1,5 @@
 #include "MangoEngine/render/render.hpp"
+#include "MangoEngine/core/event.hpp"
 #include <MangoRHI/MangoRHI.hpp>
 
 namespace MangoEngine {
@@ -25,12 +26,20 @@ namespace MangoEngine {
             MG_FATAL("Not impl for Metal yet.")
             break;
         }
-        context.set_max_in_flight_frame_count(2);
+        context.set_vsync_enabled(MangoRHI::MG_FALSE);
         context.set_swapchain_image_count(3);
+        context.set_max_in_flight_frame_count(2);
         context.set_multisample_count(MangoRHI::MultisampleCount::e1);
 
         auto &render_pass = context.get_render_pass_reference();
-        render_pass.add_output_render_target(MANGORHI_SURFACE_RENDER_TARGET_NAME, MangoRHI::RenderTargetLayout::eColor);
+        render_pass.add_output_render_target(MANGORHI_SURFACE_RENDER_TARGET_NAME, MangoRHI::RenderTargetLayout::eColor, {
+            .src_color_factor = MangoRHI::BlendFactor::eSrcAlpha,
+            .dst_color_factor = MangoRHI::BlendFactor::eOneMinusSrcAlpha,
+            .color_op = MangoRHI::BlendOp::eAdd,
+            .src_alpha_factor = MangoRHI::BlendFactor::eZero,
+            .dst_alpha_factor = MangoRHI::BlendFactor::eOne,
+            .alpha_op = MangoRHI::BlendOp::eAdd
+        });
         render_pass.add_subpass("main", MangoRHI::PipelineBindPoint::eGraphicsPipeline);
         render_pass.add_output_render_target(MANGORHI_SURFACE_RENDER_TARGET_NAME, MangoRHI::RenderTargetLayout::eColor);
         render_pass.add_subpass("imgui", MangoRHI::PipelineBindPoint::eGraphicsPipeline);
@@ -44,10 +53,40 @@ namespace MangoEngine {
             .access = MangoRHI::Access::eColorRenderTargetWrite,
         });
 
+        auto &resource_manager = context.get_resource_manager_reference();
+
+        quad_shader_program = &resource_manager.create_shader_program("main");
+        quad_shader_program->add_vertex_attribute(MangoRHI::VertexInputType::eFloat3, sizeof(glm::vec3));
+        quad_shader_program->add_vertex_attribute(MangoRHI::VertexInputType::eFloat2, sizeof(glm::vec2));
+        quad_shader_program->add_vertex_attribute(MangoRHI::VertexInputType::eFloat4, sizeof(glm::vec4));
+        quad_shader_program->add_vertex_attribute(MangoRHI::VertexInputType::eInt, sizeof(i32));
+        quad_shader_program->add_vertex_binding(MangoRHI::VertexInputRate::ePerInstance);
+        quad_shader_program->attach_vertex_shader(resource_manager.create_shader("assets/shaders/builtin-quad_shader.vert.spv"), "main");
+        quad_shader_program->attach_fragment_shader(resource_manager.create_shader("assets/shaders/builtin-quad_shader.frag.spv"), "main");
+        quad_shader_program->set_cull_mode(MangoRHI::CullMode::eNone);
+        descriptor_set = &quad_shader_program->create_descriptor_set();
+        auto &empty_texture = resource_manager.create_empty_texture();
+        descriptor_set->add_textures(MangoRHI::DescriptorStage::eFragment, {
+            empty_texture, empty_texture, empty_texture, empty_texture, empty_texture, empty_texture,
+            empty_texture, empty_texture, empty_texture, empty_texture, empty_texture, empty_texture,
+            empty_texture, empty_texture, empty_texture, empty_texture, empty_texture, empty_texture,
+            empty_texture, empty_texture, empty_texture, empty_texture, empty_texture, empty_texture,
+            empty_texture, empty_texture, empty_texture, empty_texture, empty_texture, empty_texture,
+            empty_texture, empty_texture
+        });
+
+        render_command.reset(new RenderCommand(*this));
+        viewport = { 0, 0, 0, 0, 0, 1 };
+        event_system->add_event_callback<WindowResizedEvent>([&](auto &event) {
+            this->viewport.width = static_cast<f32>(event.width);
+            this->viewport.height = static_cast<f32>(event.height);
+        });
+
         context.create();
     }
 
     RenderSystem::~RenderSystem() {
+        render_command.reset();
         MangoRHI::quit();
     }
 
@@ -59,6 +98,11 @@ namespace MangoEngine {
         if (context.begin_frame() != MangoRHI::Result::eSuccess) {
             return Result::eFailed;
         }
+        auto &command = context.get_current_command_reference();
+        command.bind_shader_program(*quad_shader_program);
+        command.set_viewport(viewport);
+        command.set_scissor({ 0, 0, static_cast<u32>(viewport.width), static_cast<u32>(viewport.height) });
+        render_command->render(context.get_current_command_reference());
         return Result::eSuccess;
     }
 

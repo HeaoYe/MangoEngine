@@ -1,6 +1,7 @@
 #include <MangoRHI/MangoRHI.hpp>
 #include "MangoEngine/core/window.hpp"
 #include "MangoEngine/imgui/imgui_renderer.hpp"
+#include <GLFW/glfw3.h>
 
 namespace MangoEngine {
     template<>

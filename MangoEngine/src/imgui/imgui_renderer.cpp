@@ -2,6 +2,7 @@
 #include "MangoEngine/core/window.hpp"
 #include "MangoEngine/render/render.hpp"
 #include "imgui/backends/imgui_impl_glfw.h"
+#include <GLFW/glfw3.h>
 
 namespace MangoEngine {
     ImGuiBackend::~ImGuiBackend() = default;
@@ -18,7 +19,7 @@ namespace MangoEngine {
         ImGui::StyleColorsDark();
 
         int width, height;
-        glfwGetFramebufferSize(window_system->get_glfw_window(), &width, &height);
+        glfwGetFramebufferSize(static_cast<GLFWwindow *>(window_system->get_native_pointer()), &width, &height);
         io.DisplaySize.x = static_cast<float>(width);
         io.DisplaySize.y = static_cast<float>(height);
         auto *font_configs = new ImFontConfig[2]();
@@ -33,13 +34,13 @@ namespace MangoEngine {
 
         switch (engine_config->api) {
         case RenderAPI::eOpenGL:
-            ImGui_ImplGlfw_InitForOpenGL(window_system->get_glfw_window(), true);
+            ImGui_ImplGlfw_InitForOpenGL(static_cast<GLFWwindow *>(window_system->get_native_pointer()), true);
             break;
         case RenderAPI::eVulkan:
-            ImGui_ImplGlfw_InitForVulkan(window_system->get_glfw_window(), true);
+            ImGui_ImplGlfw_InitForVulkan(static_cast<GLFWwindow *>(window_system->get_native_pointer()), true);
             break;
         default:
-            ImGui_ImplGlfw_InitForOther(window_system->get_glfw_window(), true);
+            ImGui_ImplGlfw_InitForOther(static_cast<GLFWwindow *>(window_system->get_native_pointer()), true);
         }
 
         switch (engine_config->api) {

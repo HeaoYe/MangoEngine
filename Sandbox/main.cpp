@@ -10,20 +10,22 @@ public:
     }
 
     MangoEngine::Result on_draw_frame() override {
+        auto &command = MangoEngine::render_system->get_render_command();
+        command.draw_quad(MangoEngine::input_system->get_last_mouse_pos(), size);
+        command.draw_quad({ 320, 320 }, { 320, 320 }, { 0.05, 0.9 , 0.99, 0.15f });
         return MangoEngine::Result::eSuccess;
     }
 
     MangoEngine::Result on_draw_imgui() override {
         ImGuiIO &io = ImGui::GetIO();
-        static float alpha = 0.5f;
         static int counter = 0;
         static float clear_color[3];
         static char *buffer = new char[100]();
         ImGui::Begin("Hello, world!");
         ImGui::Text("This is some useful text.");
-        ImGui::SliderFloat("float", &alpha, 0.0f, 1.0f);
+        ImGui::SliderFloat("float", &size, 10.0f, 320.0f);
         ImGui::ColorEdit3("clear color", (float*)&clear_color);
-        MangoEngine::render_system->set_bg_color(clear_color[0], clear_color[1], clear_color[2], alpha);
+        MangoEngine::render_system->set_bg_color(clear_color[0], clear_color[1], clear_color[2], 1.0f);
         if (ImGui::Button("Button"))
             counter++;
         ImGui::SameLine();
@@ -35,9 +37,10 @@ public:
         return MangoEngine::Result::eSuccess;
     }
 
-    MangoEngine::Result on_update() override {
+    MangoEngine::Result on_update(MangoEngine::f32 dt) override {
         if (MangoEngine::input_system->is_key_down(MangoEngine::Key::eQ) == MangoEngine::MG_TRUE) {
             MG_INFO("Key Q is downed.")
+            MG_INFO("Current Delta Time is {}.", dt)
             MG_INFO("Current Mouse Pos is {} {}.", MangoEngine::input_system->get_mouse_x(), MangoEngine::input_system->get_mouse_pos().y)
         }
         return MangoEngine::Result::eSuccess;
@@ -48,7 +51,7 @@ public:
     }
 
 private:
-    float a = 1.0f;
+    float size = 10.0f;
 };
 
 namespace MangoEngine {
