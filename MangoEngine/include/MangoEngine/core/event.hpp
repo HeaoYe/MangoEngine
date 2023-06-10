@@ -119,7 +119,7 @@ namespace MangoEngine {
     declare_event(Input, InputChar, u32 data;)
     declare_event(Mouse, MousePressed, MouseButton button;)
     declare_event(Mouse, MouseReleased, MouseButton button;)
-    declare_event(Mouse, MouseMoved, u32 x, y;)
+    declare_event(Mouse, MouseMoved, i32 x, y;)
     declare_event(Mouse, MouseScroll, i32 delta_x, delta_y;)
 
     class EventSystem {

@@ -6,13 +6,17 @@ public:
         MangoEngine::event_system->add_event_callback<MangoEngine::KeyPressedEvent>([&](auto event) {
             MG_INFO("Key Pressed: {}", MangoEngine::to_string(event.key))
         });
+        camera = &MangoEngine::camera_system->create_orthographic_camera({ 0, 0, 1 }, { 640, 640 }, 2);
         return MangoEngine::Result::eSuccess;
     }
 
     MangoEngine::Result on_draw_frame() override {
         auto &command = MangoEngine::render_system->get_render_command();
-        command.draw_quad({ 320, 320 }, { 320, 320 }, { 0.05, 0.9 , 0.99, 0.15f });
-        command.draw_quad(MangoEngine::input_system->get_last_mouse_pos(), size);
+        camera->bind();
+        command.draw_quad({ 0, 0 }, { 320, 320 }, { 0.05, 0.9 , 0.99, 0.15f });
+        auto p = MangoEngine::input_system->get_last_mouse_pos();
+        p = glm::ivec2(p.x - 320, 320 - p.y);
+        command.draw_quad(p, 320);
         return MangoEngine::Result::eSuccess;
     }
 
@@ -23,7 +27,7 @@ public:
         static char *buffer = new char[100]();
         ImGui::Begin("Hello, world!");
         ImGui::Text("This is some useful text.");
-        ImGui::SliderFloat("float", &size, 10.0f, 320.0f);
+        ImGui::SliderFloat("float", &zoom, 0.1f, 2.0f);
         ImGui::ColorEdit3("clear color", (float*)&clear_color);
         MangoEngine::render_system->set_bg_color(clear_color[0], clear_color[1], clear_color[2], 1.0f);
         if (ImGui::Button("Button"))
@@ -43,6 +47,20 @@ public:
             MG_INFO("Current Delta Time is {}.", dt)
             MG_INFO("Current Mouse Pos is {} {}.", MangoEngine::input_system->get_mouse_x(), MangoEngine::input_system->get_mouse_pos().y)
         }
+        if (MangoEngine::input_system->is_key_down(MangoEngine::Key::eW) == MangoEngine::MG_TRUE) {
+            camera->pos.y += 150.0f * dt;
+        }
+        if (MangoEngine::input_system->is_key_down(MangoEngine::Key::eS) == MangoEngine::MG_TRUE) {
+            camera->pos.y -= 150.0f * dt;
+        }
+        if (MangoEngine::input_system->is_key_down(MangoEngine::Key::eA) == MangoEngine::MG_TRUE) {
+            camera->pos.x -= 150.0f * dt;
+        }
+        if (MangoEngine::input_system->is_key_down(MangoEngine::Key::eD) == MangoEngine::MG_TRUE) {
+            camera->pos.x += 150.0f * dt;
+        }
+        camera->zoom = zoom;
+        camera->update();
         return MangoEngine::Result::eSuccess;
     }
 
@@ -51,7 +69,8 @@ public:
     }
 
 private:
-    float size = 10.0f;
+    float zoom = 1.0f;
+    MangoEngine::Camera *camera;
 };
 
 namespace MangoEngine {

@@ -69,6 +69,7 @@ namespace MangoEngine {
         quad_shader_program->set_cull_mode(MangoRHI::CullMode::eNone);
         descriptor_set = quad_shader_program->create_descriptor_set();
         auto &empty_texture = *resource_factory.create_empty_texture().release();
+        descriptor_set.lock()->add_uniforms_descriptor(MangoRHI::DescriptorStage::eVertex, sizeof(glm::mat4) * 2, 1);
         descriptor_set.lock()->add_textures_descriptor(MangoRHI::DescriptorStage::eFragment, {
             empty_texture, empty_texture, empty_texture, empty_texture, empty_texture, empty_texture,
             empty_texture, empty_texture, empty_texture, empty_texture, empty_texture, empty_texture,

@@ -8,7 +8,7 @@ namespace MangoEngine {
     struct InputState {
         ButtonState key_states[static_cast<u32>(Key::MAX_NUM)];
         ButtonState mouse_button_states[static_cast<u32>(MouseButton::MAX_NUM)];
-        u32 mouse_x, mouse_y;
+        i32 mouse_x, mouse_y;
         i32 mouse_scroll_x, mouse_scroll_y;
     };
 
@@ -26,12 +26,12 @@ namespace MangoEngine {
         Bool was_mouse_button_down(MouseButton button);
         Bool is_mouse_button_up(MouseButton button);
         Bool was_mouse_button_up(MouseButton button);
-        glm::uvec2 get_mouse_pos();
-        glm::uvec2 get_last_mouse_pos();
-        u32 get_mouse_x();
-        u32 get_last_mouse_x();
-        u32 get_mouse_y();
-        u32 get_last_mouse_y();
+        glm::ivec2 get_mouse_pos();
+        glm::ivec2 get_last_mouse_pos();
+        i32 get_mouse_x();
+        i32 get_last_mouse_x();
+        i32 get_mouse_y();
+        i32 get_last_mouse_y();
         i32 get_mouse_scroll_x();
         i32 get_last_mouse_scroll_x();
         i32 get_mouse_scroll_y();

@@ -2,14 +2,7 @@
 #include "MangoEngine/render/render.hpp"
 
 namespace MangoEngine {
-    QuadInstance::QuadInstance(glm::vec3 pos, glm::vec2 size, glm::vec4 color, int texture_slot) : color(color), texture_slot(texture_slot) {
-        pos.x = pos.x / render_system->get_viewport().width * 2 - 1;
-        pos.y = pos.y / render_system->get_viewport().height * 2 - 1;
-        size.x /= render_system->get_viewport().width;
-        size.y /= render_system->get_viewport().height;
-        this->pos = pos;
-        this->size = size;
-    }
+    QuadInstance::QuadInstance(glm::vec3 pos, glm::vec2 size, glm::vec4 color, int texture_slot) : pos(pos), size(size), color(color), texture_slot(texture_slot) {}
 
     RenderCommand::RenderCommand(RenderSystem &render_system) {
         _current_vertex_buffer_offset = 0;

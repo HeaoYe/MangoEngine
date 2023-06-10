@@ -16,6 +16,7 @@ namespace MangoEngine {
         MangoRHI::Context &get_context();
         const MangoRHI::Viewport &get_viewport() const { return viewport; }
         RenderCommand &get_render_command() { return *render_command; }
+        const std::weak_ptr<MangoRHI::DescriptorSet> &get_descriptor_set() const { return descriptor_set; };
 
     private:
         MangoRHI::Context &context;
