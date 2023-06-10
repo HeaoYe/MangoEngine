@@ -26,15 +26,15 @@ namespace MangoEngine {
         void draw_quad(glm::vec3 pos, f32 size, glm::vec4 color) { draw_quad(pos, { size, size }, color); }
         void draw_quad(glm::vec3 pos, glm::vec2 size, glm::vec3 color) { draw_quad(pos, size, { color.r, color.g, color.b, 1.0f }); }
         void draw_quad(glm::vec3 pos, f32 size, glm::vec3 color) { draw_quad(pos, { size, size }, { color.r, color.g, color.b, 1.0f }); }
-        void draw_quad(glm::vec2 pos, glm::vec2 size, glm::vec4 color) { draw_quad({ pos.x, pos.y, 0.5 }, size, color); }
-        void draw_quad(glm::vec2 pos, f32 size, glm::vec4 color) { draw_quad({ pos.x, pos.y, 0.5 }, { size, size }, color); }
-        void draw_quad(glm::vec2 pos, glm::vec2 size, glm::vec3 color) { draw_quad({ pos.x, pos.y, 0.5 }, size, { color.r, color.g, color.b, 1.0f }); }
-        void draw_quad(glm::vec2 pos, f32 size, glm::vec3 color) { draw_quad({ pos.x, pos.y, 0.5 }, { size, size }, { color.r, color.g, color.b, 1.0f }); }
+        void draw_quad(glm::vec2 pos, glm::vec2 size, glm::vec4 color) { draw_quad({ pos.x, pos.y, 0.0f }, size, color); }
+        void draw_quad(glm::vec2 pos, f32 size, glm::vec4 color) { draw_quad({ pos.x, pos.y, 0.0f }, { size, size }, color); }
+        void draw_quad(glm::vec2 pos, glm::vec2 size, glm::vec3 color) { draw_quad({ pos.x, pos.y, 0.0f }, size, { color.r, color.g, color.b, 1.0f }); }
+        void draw_quad(glm::vec2 pos, f32 size, glm::vec3 color) { draw_quad({ pos.x, pos.y, 0.0f }, { size, size }, { color.r, color.g, color.b, 1.0f }); }
 
         void draw_quad(glm::vec3 pos, glm::vec2 size) { draw_quad(pos, size, { 0.5f, 0.5f, 0.5f, 1.0f }); }
         void draw_quad(glm::vec3 pos, f32 size) { draw_quad(pos, { size, size }, { 0.5f, 0.5f, 0.5f, 1.0f }); }
-        void draw_quad(glm::vec2 pos, glm::vec2 size) { draw_quad({ pos.x, pos.y, 0.5 }, size, { 0.5f, 0.5f, 0.5f, 1.0f }); }
-        void draw_quad(glm::vec2 pos, f32 size) { draw_quad({ pos.x, pos.y, 0.5 }, { size, size }, { 0.5f, 0.5f, 0.5f, 1.0f }); }
+        void draw_quad(glm::vec2 pos, glm::vec2 size) { draw_quad({ pos.x, pos.y, 0.0f }, size, { 0.5f, 0.5f, 0.5f, 1.0f }); }
+        void draw_quad(glm::vec2 pos, f32 size) { draw_quad({ pos.x, pos.y, 0.0f }, { size, size }, { 0.5f, 0.5f, 0.5f, 1.0f }); }
 
     private:
         std::vector<QuadInstance> quads;

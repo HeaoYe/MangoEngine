@@ -1,6 +1,6 @@
 #pragma once
 
-#include "MangoEngine/imgui/imgui_renderer.hpp"
+#include "MangoEngine/render/imgui/imgui_renderer.hpp"
 #include "MangoEngine/render/render.hpp"
 
 namespace MangoEngine {

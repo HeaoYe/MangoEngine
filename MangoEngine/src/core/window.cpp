@@ -92,7 +92,7 @@ namespace MangoEngine {
         glfwSetCursorPosCallback(static_cast<GLFWwindow *>(native_pointer), [](GLFWwindow *, double xpos, double ypos) {
             input_system->states[input_system->current_state].mouse_x = static_cast<u32>(xpos);
             input_system->states[input_system->current_state].mouse_y = static_cast<u32>(ypos);
-            event_system->dispatch<MouseMovedEvent>({ .x = static_cast<u32>(xpos), .y = static_cast<u32>(ypos) });
+            event_system->dispatch<MouseMovedEvent>({ .x = static_cast<i32>(xpos), .y = static_cast<i32>(ypos) });
         });
 
         glfwSetScrollCallback(static_cast<GLFWwindow *>(native_pointer), [](GLFWwindow *, double xoffset, double yoffset) {

@@ -19,6 +19,7 @@ int main() {
     MangoEngine::InputSystem::Initialize();
     MangoEngine::WindowSystem::Initialize();
     MangoEngine::RenderSystem::Initialize();
+    MangoEngine::CameraSystem::Initialize();
     MangoEngine::ImGuiRenderer::Initialize();
 
     MangoEngine::Result res;
@@ -53,6 +54,7 @@ int main() {
     }
 
     MangoEngine::ImGuiRenderer::Quit();
+    MangoEngine::CameraSystem::Quit();
     MangoEngine::RenderSystem::Quit();
     MangoEngine::WindowSystem::Quit();
     MangoEngine::InputSystem::Quit();

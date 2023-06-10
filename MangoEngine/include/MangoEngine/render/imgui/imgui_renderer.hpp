@@ -1,7 +1,7 @@
 #pragma once
 
-#include "../commons.hpp"
-#include "../core/event.hpp"
+#include "../../commons.hpp"
+#include "../../core/event.hpp"
 #include "imgui/imgui.h"
 
 namespace MangoEngine {
