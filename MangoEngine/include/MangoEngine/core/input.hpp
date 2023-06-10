@@ -26,8 +26,8 @@ namespace MangoEngine {
         Bool was_mouse_button_down(MouseButton button);
         Bool is_mouse_button_up(MouseButton button);
         Bool was_mouse_button_up(MouseButton button);
-        Pos get_mouse_pos();
-        Pos get_last_mouse_pos();
+        glm::uvec2 get_mouse_pos();
+        glm::uvec2 get_last_mouse_pos();
         u32 get_mouse_x();
         u32 get_last_mouse_x();
         u32 get_mouse_y();

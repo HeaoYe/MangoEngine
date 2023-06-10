@@ -48,12 +48,12 @@ namespace MangoEngine {
         return states[!current_state].mouse_button_states[static_cast<u32>(button)] == MG_UP ? MG_TRUE : MG_FALSE;
     }
 
-    Pos InputSystem::get_mouse_pos() {
-        return { .x = states[current_state].mouse_x, .y = states[current_state].mouse_y };
+    glm::uvec2 InputSystem::get_mouse_pos() {
+        return { states[current_state].mouse_x, states[current_state].mouse_y };
     }
 
-    Pos InputSystem::get_last_mouse_pos() {
-        return { .x = states[!current_state].mouse_x, .y = states[!current_state].mouse_y };
+    glm::uvec2 InputSystem::get_last_mouse_pos() {
+        return { states[!current_state].mouse_x, states[!current_state].mouse_y };
     }
 
     u32 InputSystem::get_mouse_x() {

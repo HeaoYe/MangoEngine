@@ -29,8 +29,13 @@ int main() {
         return -1;
     }
 
+    MangoEngine::event_system->dispatch<MangoEngine::WindowResizedEvent>({
+        .width = MangoEngine::window_system->get_width(),
+        .height = MangoEngine::window_system->get_height(),
+    });
+
     while (MangoEngine::window_system->pull_events() != MangoEngine::MG_FALSE) {
-        application->on_update();
+        application->on_update(ImGui::GetIO().DeltaTime);
         if (MangoEngine::render_system->begin_render() == MangoEngine::Result::eSuccess) {
             application->on_draw_frame();
             MangoEngine::imgui_renderer->begin_imgui();
