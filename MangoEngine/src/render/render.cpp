@@ -5,10 +5,10 @@
 namespace MangoEngine {
     implement_runtime_system(RenderSystem, render_system)
 
-    RenderSystem::RenderSystem() : context([]() -> MangoRHI::Context & {
+    RenderSystem::RenderSystem() {
         MangoRHI::initialize(transform<RenderAPI, MangoRHI::API>(engine_config->api));
-        return MangoRHI::get_context();
-    }()) {
+        auto &context = MangoRHI::get_context();
+
         switch (engine_config->api) {
         case RenderAPI::eNone:
             MG_FATAL("Not impl for None yet.")
@@ -26,6 +26,7 @@ namespace MangoEngine {
             MG_FATAL("Not impl for Metal yet.")
             break;
         }
+
         context.set_vsync_enabled(MangoRHI::MG_FALSE);
         context.set_swapchain_image_count(3);
         context.set_max_in_flight_frame_count(2);
@@ -102,10 +103,12 @@ namespace MangoEngine {
     }
 
     void RenderSystem::set_bg_color(f32 r, f32 g, f32 b, f32 a) {
+        auto &context = MangoRHI::get_context();
         context.set_clear_value(MANGORHI_SURFACE_RENDER_TARGET_NAME, { .color = { r, g, b, a } });
     }
 
     Result RenderSystem::begin_render() {
+        auto &context = MangoRHI::get_context();
         if (context.begin_frame() != MangoRHI::Result::eSuccess) {
             return Result::eFailed;
         }
@@ -118,13 +121,10 @@ namespace MangoEngine {
     }
 
     Result RenderSystem::end_render() {
+        auto &context = MangoRHI::get_context();
         if (context.end_frame() != MangoRHI::Result::eSuccess) {
             return Result::eFailed;
         }
         return Result::eSuccess;
-    }
-
-    MangoRHI::Context &RenderSystem::get_context() {
-        return context;
     }
 }

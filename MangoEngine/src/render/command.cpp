@@ -8,7 +8,7 @@ namespace MangoEngine {
         _current_vertex_buffer_offset = 0;
         _current_texture_slot = 0;
         quads.reserve(render_command_max_quad_buffer_size);
-        vertex_buffer.reset(render_system.get_context().get_resource_factory_reference().create_vertex_buffer(sizeof(QuadInstance)).release());
+        vertex_buffer.reset(MangoRHI::get_context().get_resource_factory_reference().create_vertex_buffer(sizeof(QuadInstance)).release());
     }
 
     RenderCommand::~RenderCommand() {
