@@ -8,7 +8,7 @@ namespace MangoEngine {
         return reinterpret_cast<ImGuiBackend *>(new VulkanImGuiBackend());
     }
 
-    VulkanImGuiBackend::VulkanImGuiBackend() : context(dynamic_cast<MangoRHI::VulkanContext &>(render_system->get_context())) {
+    VulkanImGuiBackend::VulkanImGuiBackend() : context(dynamic_cast<MangoRHI::VulkanContext &>(MangoRHI::get_context())) {
         VkDescriptorPoolSize pool_sizes[] = {
             { VK_DESCRIPTOR_TYPE_SAMPLER, 1000 },
             { VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1000 },
