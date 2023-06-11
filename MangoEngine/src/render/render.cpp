@@ -5,10 +5,10 @@
 namespace MangoEngine {
     implement_runtime_system(RenderSystem, render_system)
 
-    RenderSystem::RenderSystem() : context([]() -> MangoRHI::Context & {
+    RenderSystem::RenderSystem() {
         MangoRHI::initialize(transform<RenderAPI, MangoRHI::API>(engine_config->api));
-        return MangoRHI::get_context();
-    }()) {
+        auto &context = MangoRHI::get_context();
+
         switch (engine_config->api) {
         case RenderAPI::eNone:
             MG_FATAL("Not impl for None yet.")
@@ -26,6 +26,7 @@ namespace MangoEngine {
             MG_FATAL("Not impl for Metal yet.")
             break;
         }
+
         context.set_vsync_enabled(MangoRHI::MG_FALSE);
         context.set_swapchain_image_count(3);
         context.set_max_in_flight_frame_count(2);
@@ -38,8 +39,8 @@ namespace MangoEngine {
             .src_color_factor = MangoRHI::BlendFactor::eSrcAlpha,
             .dst_color_factor = MangoRHI::BlendFactor::eOneMinusSrcAlpha,
             .color_op = MangoRHI::BlendOp::eAdd,
-            .src_alpha_factor = MangoRHI::BlendFactor::eZero,
-            .dst_alpha_factor = MangoRHI::BlendFactor::eOne,
+            .src_alpha_factor = MangoRHI::BlendFactor::eOne,
+            .dst_alpha_factor = MangoRHI::BlendFactor::eZero,
             .alpha_op = MangoRHI::BlendOp::eAdd
         });
         render_pass.set_depth_render_target("depth", MangoRHI::RenderTargetLayout::eDepth);
@@ -62,6 +63,7 @@ namespace MangoEngine {
         quad_shader_program.reset(resource_factory.create_shader_program("main").release());
         quad_shader_program->add_vertex_attribute(MangoRHI::VertexInputType::eFloat3, sizeof(glm::vec3));
         quad_shader_program->add_vertex_attribute(MangoRHI::VertexInputType::eFloat2, sizeof(glm::vec2));
+        quad_shader_program->add_vertex_attribute(MangoRHI::VertexInputType::eFloat, sizeof(f32));
         quad_shader_program->add_vertex_attribute(MangoRHI::VertexInputType::eFloat4, sizeof(glm::vec4));
         quad_shader_program->add_vertex_attribute(MangoRHI::VertexInputType::eInt, sizeof(i32));
         quad_shader_program->add_vertex_binding(MangoRHI::VertexInputRate::ePerInstance);
@@ -71,6 +73,7 @@ namespace MangoEngine {
         quad_shader_program->attach_fragment_shader(*builtin_quad_frag_shader, "main");
         quad_shader_program->set_cull_mode(MangoRHI::CullMode::eNone);
         quad_shader_program->set_depth_test_enabled(MangoRHI::MG_TRUE);
+        quad_shader_program->set_depth_compare_op(MangoRHI::DepthCompareOp::eLessOrEqual);
         descriptor_set = quad_shader_program->create_descriptor_set();
         auto &empty_texture = *resource_factory.create_empty_texture().release();
         descriptor_set.lock()->add_uniforms_descriptor(MangoRHI::DescriptorStage::eVertex, sizeof(glm::mat4) * 2, 1);
@@ -100,10 +103,12 @@ namespace MangoEngine {
     }
 
     void RenderSystem::set_bg_color(f32 r, f32 g, f32 b, f32 a) {
+        auto &context = MangoRHI::get_context();
         context.set_clear_value(MANGORHI_SURFACE_RENDER_TARGET_NAME, { .color = { r, g, b, a } });
     }
 
     Result RenderSystem::begin_render() {
+        auto &context = MangoRHI::get_context();
         if (context.begin_frame() != MangoRHI::Result::eSuccess) {
             return Result::eFailed;
         }
@@ -116,13 +121,10 @@ namespace MangoEngine {
     }
 
     Result RenderSystem::end_render() {
+        auto &context = MangoRHI::get_context();
         if (context.end_frame() != MangoRHI::Result::eSuccess) {
             return Result::eFailed;
         }
         return Result::eSuccess;
-    }
-
-    MangoRHI::Context &RenderSystem::get_context() {
-        return context;
     }
 }

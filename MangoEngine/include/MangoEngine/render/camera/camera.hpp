@@ -5,6 +5,7 @@
 namespace MangoEngine {
     class Camera {
     public:
+        virtual ~Camera() = default;
         virtual void update() = 0;
         virtual void bind();
         glm::mat4 &view() { return datas[0]; }

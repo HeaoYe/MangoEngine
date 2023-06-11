@@ -16,7 +16,9 @@ namespace MangoEngine {
         ImGui::CreateContext();
         ImGuiIO &io = ImGui::GetIO();
         io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
-        ImGui::StyleColorsDark();
+        // io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
+        io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+        ImGui::StyleColorsClassic();
 
         int width, height;
         glfwGetFramebufferSize(static_cast<GLFWwindow *>(window_system->get_native_pointer()), &width, &height);
@@ -77,5 +79,11 @@ namespace MangoEngine {
     void ImGuiRenderer::end_imgui() {
         ImGui::EndFrame();
         backend->end_imgui();
+
+        // ImGuiIO& io = ImGui::GetIO();
+        // if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable) {
+            // ImGui::UpdatePlatformWindows();
+            // ImGui::RenderPlatformWindowsDefault();
+        // }
     }
 }
