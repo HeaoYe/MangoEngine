@@ -72,6 +72,7 @@ namespace MangoEngine {
         quad_shader_program->attach_fragment_shader(*builtin_quad_frag_shader, "main");
         quad_shader_program->set_cull_mode(MangoRHI::CullMode::eNone);
         quad_shader_program->set_depth_test_enabled(MangoRHI::MG_TRUE);
+        quad_shader_program->set_depth_compare_op(MangoRHI::DepthCompareOp::eLessOrEqual);
         descriptor_set = quad_shader_program->create_descriptor_set();
         auto &empty_texture = *resource_factory.create_empty_texture().release();
         descriptor_set.lock()->add_uniforms_descriptor(MangoRHI::DescriptorStage::eVertex, sizeof(glm::mat4) * 2, 1);

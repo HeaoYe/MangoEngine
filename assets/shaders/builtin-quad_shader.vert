@@ -25,10 +25,11 @@ vec2 quad[4] = vec2[](
 void main() {
     float s = sin(in_rotate);
     float c = cos(in_rotate);
+    mat2 rotate = mat2(c, s, -s, c);
 
-    vec2 quad_pos = mat2(c, s, -s, c) * quad[gl_VertexIndex / 3 + gl_VertexIndex % 3];
-    gl_Position = vp.project * vp.view * vec4(quad_pos * in_size + in_pos.xy, in_pos.z, 1);
-    frag_uv = quad_pos + 0.5;
+    vec2 quad_pos = quad[gl_VertexIndex / 3 + gl_VertexIndex % 3];
+    gl_Position = vp.project * vp.view * vec4(rotate * quad_pos * in_size + in_pos.xy, in_pos.z, 1);
+    frag_uv = vec2(quad_pos.x + 0.5, 0.5 - quad_pos.y);
     frag_color = in_color;
     frag_texture_slot = texture_slot;
 }

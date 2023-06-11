@@ -16,11 +16,16 @@ bool operator==(const Quad &other1, const Quad &other2) {
 constexpr float quad_duration = 0.75f;
 constexpr double pi = 3.14159265358979323846;
 int quad_per_second = 350;
+constexpr float max_quad_size = 200.0f;
 constexpr uint32_t window_width = 1920;
 constexpr uint32_t window_height = 1080;
 
 class QuadManager {
 public:
+    QuadManager() {
+        texture = MangoEngine::Texture::load_from_file("assets/textures/dhl.png");
+    }
+
     void generate() {
         if (total < 1.0f / static_cast<float>(quad_per_second))
             return;
@@ -39,16 +44,17 @@ public:
     }
 
     void draw() {
-        quads.reverse();
-        std::for_each(quads.begin(), quads.end(), [](auto &quad) {
+        std::for_each(quads.begin(), quads.end(), [this](auto &quad) {
             auto &command = MangoEngine::render_system->get_render_command();
             command.draw_quad(
-                quad.root + 120.0f * quad.dir * quad.dt * (quad.random + 0.5f),
-                (quad_duration - quad.dt) / quad_duration * 30.0f * (quad.random / 2.0f + 0.75f),
+                quad.root + max_quad_size * 2.0f * quad.dir * quad.dt * (quad.random + 0.5f),
+                (quad_duration - quad.dt) / quad_duration * max_quad_size * (quad.random * 0.5f + 0.75f),
                 (quad.random + (quad.random / 2.0f + 0.75f) * 2.0f * quad.dt * quad.sign) * 2.0f * static_cast<float>(pi),
-                { 1.0f, 0.7f, 0.0f, (quad_duration - quad.dt) / quad_duration });
+                // { 1.0f, 0.7f, 0.0f, (quad_duration - quad.dt) / quad_duration * 0.5f + 0.5f },
+                { 1.0f, 1.0f, 1.0f, (quad_duration - quad.dt) / quad_duration * 0.5f + 0.5f },
+                texture
+            );
         });
-        quads.reverse();
     }
 
     void update(float dt) {
@@ -63,6 +69,7 @@ public:
 
     int length = 0;
 private:
+    std::shared_ptr<MangoEngine::Texture> texture;
     std::list<Quad> quads;
     float total = 0;
 };
@@ -74,13 +81,17 @@ public:
             MG_INFO("Key Pressed: {}", MangoEngine::to_string(event.key))
         });
         camera = &MangoEngine::camera_system->create_orthographic_camera({ 0, 0, 1 }, { window_width, window_height }, 2);
+        texture = MangoEngine::Texture::load_from_file("assets/textures/dance.png");
         return MangoEngine::Result::eSuccess;
     }
 
     MangoEngine::Result on_draw_frame() override {
         auto &command = MangoEngine::render_system->get_render_command();
         camera->bind();
-        command.draw_quad({ 0, 0, -0.1 }, { 320, 320 }, rotate, { 0.05, 0.9 , 0.99, 0.5f });
+        command.draw_quad({ 0, 0, -0.1 }, { 240, 240 }, rotate, { 0.05, 0.9 , 0.99, 0.5f });
+        command.draw_quad({ 0, 0, -0.1 }, { 320, 320 }, rotate, { 1.0f, 1.0f, 1.0f, 1.0f }, texture);
+        command.draw_quad({ 320, 0, -0.1 }, { 320, 320 }, -rotate, { 1.0f, 1.0f, 1.0f, 1.0f }, texture);
+        command.draw_quad({ -320, 0, -0.1 }, { 320, 320 }, -rotate - pi, { 1.0f, 1.0f, 1.0f, 1.0f }, texture);
         quad_manager.draw();
         return MangoEngine::Result::eSuccess;
     }
@@ -146,6 +157,7 @@ private:
     float rotate = 0.0f;
     MangoEngine::Camera *camera;
     QuadManager quad_manager;
+    std::shared_ptr<MangoEngine::Texture> texture;
 };
 
 namespace MangoEngine {
