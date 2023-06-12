@@ -55,6 +55,16 @@ namespace MangoEngine {
         ImGui_ImplVulkan_CreateFontsTexture(command.get_command_buffer());
         context.get_command_pool()->free(command);
         ImGui_ImplVulkan_DestroyFontUploadObjects();
+
+        auto *scene = context.get_render_pass()->get_render_targets()[context.get_render_pass()->get_render_target_index_by_name("scene_texture")].get();
+        sampler.reset(dynamic_cast<MangoRHI::VulkanSampler *>(context.get_resource_factory_reference().create_sampler().release()));
+        scene_texture = ImGui_ImplVulkan_AddTexture(sampler->get_sampler(), scene->get_image_views()[0], VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+
+        context.add_resource_recreate_callback([this, scene]() {
+            auto *scene = context.get_render_pass()->get_render_targets()[context.get_render_pass()->get_render_target_index_by_name("scene_texture")].get();
+            vkFreeDescriptorSets(context.get_device()->get_logical_device(), descriptor_pool, 1, &scene_texture);
+            scene_texture = ImGui_ImplVulkan_AddTexture(sampler->get_sampler(), scene->get_image_views()[0], VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+        });
     }
 
     VulkanImGuiBackend::~VulkanImGuiBackend() {
@@ -73,5 +83,9 @@ namespace MangoEngine {
         ImGui::Render();
         ImDrawData* draw_data = ImGui::GetDrawData();
         ImGui_ImplVulkan_RenderDrawData(draw_data, command.get_command_buffer());
+    }
+
+    ImTextureID VulkanImGuiBackend::get_scene_texture() {
+        return scene_texture;
     }
 }

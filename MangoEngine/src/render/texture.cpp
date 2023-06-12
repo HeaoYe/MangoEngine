@@ -19,4 +19,9 @@ namespace MangoEngine {
         this->texture->destroy_before(&MangoRHI::get_context());
         _current_uuid ++;
     }
+
+    Texture::~Texture() {
+        MangoRHI::get_context().remove_destroy_dependency(texture.get());
+        texture->destroy();
+    }
 }

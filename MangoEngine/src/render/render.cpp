@@ -30,12 +30,14 @@ namespace MangoEngine {
         context.set_vsync_enabled(MangoRHI::MG_FALSE);
         context.set_swapchain_image_count(3);
         context.set_max_in_flight_frame_count(2);
-        context.set_multisample_count(MangoRHI::MultisampleCount::e1);
+        context.set_multisample_count(MangoRHI::MultisampleCount::e2);
 
         auto &render_pass = context.get_render_pass_reference();
         render_pass.create_render_target("depth", MangoRHI::RenderTargetUsage::eDepth);
+        render_pass.create_render_target("output", MangoRHI::RenderTargetUsage::eColor);
+        render_pass.create_render_target("scene_texture", MangoRHI::RenderTargetUsage::eTexture);
         context.set_clear_value("depth", { .depth_stencil = { .depth = 1.0f, .stencil = 1 } });
-        render_pass.add_output_render_target(MANGORHI_SURFACE_RENDER_TARGET_NAME, MangoRHI::RenderTargetLayout::eColor, {
+        render_pass.add_output_render_target("output", MangoRHI::RenderTargetLayout::eColor, {
             .src_color_factor = MangoRHI::BlendFactor::eSrcAlpha,
             .dst_color_factor = MangoRHI::BlendFactor::eOneMinusSrcAlpha,
             .color_op = MangoRHI::BlendOp::eAdd,
@@ -43,9 +45,12 @@ namespace MangoEngine {
             .dst_alpha_factor = MangoRHI::BlendFactor::eZero,
             .alpha_op = MangoRHI::BlendOp::eAdd
         });
+        render_pass.add_resolve_render_target("scene_texture", MangoRHI::RenderTargetLayout::eColor);
         render_pass.set_depth_render_target("depth", MangoRHI::RenderTargetLayout::eDepth);
         render_pass.add_subpass("main", MangoRHI::PipelineBindPoint::eGraphicsPipeline);
-        render_pass.add_output_render_target(MANGORHI_SURFACE_RENDER_TARGET_NAME, MangoRHI::RenderTargetLayout::eColor);
+        render_pass.add_input_render_target("scene_texture", MangoRHI::RenderTargetLayout::eShaderRead);
+        render_pass.add_output_render_target("output", MangoRHI::RenderTargetLayout::eColor);
+        render_pass.add_resolve_render_target(MANGORHI_SURFACE_RENDER_TARGET_NAME, MangoRHI::RenderTargetLayout::eColor);
         render_pass.add_subpass("imgui", MangoRHI::PipelineBindPoint::eGraphicsPipeline);
         render_pass.add_dependency({
             .name = "main",
@@ -104,7 +109,7 @@ namespace MangoEngine {
 
     void RenderSystem::set_bg_color(f32 r, f32 g, f32 b, f32 a) {
         auto &context = MangoRHI::get_context();
-        context.set_clear_value(MANGORHI_SURFACE_RENDER_TARGET_NAME, { .color = { r, g, b, a } });
+        context.set_clear_value("output", { .color = { r, g, b, a } });
     }
 
     Result RenderSystem::begin_render() {

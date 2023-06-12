@@ -10,9 +10,12 @@ namespace MangoEngine {
         ~VulkanImGuiBackend() override;
         void begin_imgui() override;
         void end_imgui() override;
+        ImTextureID get_scene_texture() override;
 
     private:
         MangoRHI::VulkanContext &context;
         VkDescriptorPool descriptor_pool { VK_NULL_HANDLE };
+        std::unique_ptr<MangoRHI::VulkanSampler> sampler;
+        VkDescriptorSet scene_texture { VK_NULL_HANDLE };
     };
 }

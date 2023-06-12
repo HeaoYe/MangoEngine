@@ -115,6 +115,7 @@ public:
         ImGui::Text("counter = %d", counter);
         ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
         ImGui::InputText(u8"中文", buffer, 100);
+        ImGui::End();
 
         ImGui::ShowDemoWindow();
 

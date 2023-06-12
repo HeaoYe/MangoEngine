@@ -15,6 +15,7 @@ namespace MangoEngine {
 
     class RenderSystem;
     constexpr u32 render_command_max_quad_buffer_size = 2048;
+    constexpr u32 render_command_max_quad_instance_per_frame = 1024 * 1024;
 
     class RenderCommand {
     public:
