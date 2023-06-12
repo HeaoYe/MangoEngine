@@ -3,6 +3,16 @@
 
 namespace MangoEditor {
     class MangoEditorApplication final : public MangoEngine::Application {
+    public:
+        void generate_engine_config(MangoEngine::EngineConfig *engine_config) override {
+            engine_config->api = MangoEngine::RenderAPI::eVulkan;
+            engine_config->title = "Mango Engine Editor";
+            engine_config->window_x = 0;
+            engine_config->window_y = 0;
+            engine_config->window_width = 1920;
+            engine_config->window_height = 1080;
+        }
+
         MangoEngine::Result initialize() override {
             MangoEngine::render_system->set_bg_color(1, 0.5, 0.9, 1);
             return MangoEngine::Result::eSuccess;
@@ -32,18 +42,10 @@ namespace MangoEditor {
         MangoEngine::Result quit() override {
             return MangoEngine::Result::eSuccess;
         }
+
     private:
         float rotate = 0.0f;
     };
-}
-
-void MangoEngine::generate_engine_config(EngineConfig *engine_config) {
-    engine_config->api = MangoEngine::RenderAPI::eVulkan;
-    engine_config->title = "Mango Engine Editor";
-    engine_config->window_x = 0;
-    engine_config->window_y = 0;
-    engine_config->window_width = 1920;
-    engine_config->window_height = 1080;
 }
 
 MangoEngine::Application *MangoEngine::create_application() {

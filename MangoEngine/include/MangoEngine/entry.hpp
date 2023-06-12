@@ -4,14 +4,16 @@
 #include "MangoEngine.hpp"
 
 int main() {
+    auto *application = MangoEngine::create_application();
+
+    MangoEngine::engine_config = new MangoEngine::EngineConfig();
+    application->generate_engine_config(MangoEngine::engine_config);
+
     #if defined (MANGO_DEBUG)
     auto level = MangoEngine::LogLevel::eDebug;
     #else
     auto level = MangoEngine::LogLevel::eInfo;
     #endif
-
-    MangoEngine::engine_config = new MangoEngine::EngineConfig();
-    MangoEngine::generate_engine_config(MangoEngine::engine_config);
 
     MangoEngine::LoggerSystem::Initialize();
     MangoEngine::logger_system->set_level(level);
@@ -23,7 +25,6 @@ int main() {
     MangoEngine::ImGuiRenderer::Initialize();
 
     MangoEngine::Result res;
-    auto *application = MangoEngine::create_application();
     res = application->initialize();
     if (res != MangoEngine::Result::eSuccess) {
         MG_FATAL("Failed Initialize Application.")
