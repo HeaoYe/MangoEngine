@@ -17,11 +17,13 @@ namespace MangoEngine {
         glm::mat4 datas[2];
     };
 
+    class OrthographicCamera;
+
     class CameraSystem {
     public:
-        Camera &create_orthographic_camera(glm::vec3 pos, glm::vec2 size, f32 depth);
+        std::shared_ptr<OrthographicCamera> create_orthographic_camera(glm::vec3 pos, glm::vec2 size, f32 depth);
     private:
-        std::vector<std::unique_ptr<Camera>> cameras;
+        std::vector<std::shared_ptr<Camera>> cameras;
 
     declare_runtime_system(CameraSystem)
     };

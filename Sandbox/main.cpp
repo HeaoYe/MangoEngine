@@ -90,7 +90,7 @@ public:
             MG_INFO("Key Pressed: {}", MangoEngine::to_string(event.key))
         });
         quad_manager = std::make_unique<QuadManager>();
-        camera.reset(&MangoEngine::camera_system->create_orthographic_camera({ 0, 0, 1 }, { window_width, window_height }, 2));
+        camera = MangoEngine::camera_system->create_orthographic_camera({ 0, 0, 1 }, { window_width, window_height }, 2);
         texture = MangoEngine::Texture::load_from_file("assets/textures/dance.png");
         return MangoEngine::Result::eSuccess;
     }
@@ -155,6 +155,7 @@ public:
         }
         rotate += 3.14 * dt;
         quad_manager->update(dt);
+        zoom *= 1.0f + MangoEngine::input_system->get_mouse_scroll_y() / 5.0f;
         camera->zoom = zoom;
         camera->update();
         return MangoEngine::Result::eSuccess;
@@ -167,7 +168,7 @@ public:
 private:
     float zoom = 1.0f;
     float rotate = 0.0f;
-    std::unique_ptr<MangoEngine::Camera> camera;
+    std::shared_ptr<MangoEngine::OrthographicCamera> camera;
     std::unique_ptr<QuadManager> quad_manager;
     std::shared_ptr<MangoEngine::Texture> texture;
 };

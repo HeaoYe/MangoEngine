@@ -15,6 +15,7 @@ namespace MangoEditor {
 
         MangoEngine::Result initialize() override {
             MangoEngine::render_system->set_bg_color(1, 0.5, 0.9, 1);
+            camera = MangoEngine::camera_system->create_orthographic_camera({ 0, 0, 1 }, { 1920.0f / 4.0f, 1080.0f / 4.0f }, 2);
             return MangoEngine::Result::eSuccess;
         }
 
@@ -24,8 +25,7 @@ namespace MangoEditor {
         }
 
         MangoEngine::Result on_draw_frame() override {
-            static auto &camera = MangoEngine::camera_system->create_orthographic_camera({ 0, 0, 1 }, { 1920, 1080 }, 2);
-            camera.bind();
+            camera->bind();
             auto &command = MangoEngine::render_system->get_render_command();
             command.draw_quad({ 0, 0 }, { 100, 100 }, rotate, { 0, 0.3, 0.99 });
             return MangoEngine::Result::eSuccess;
@@ -34,7 +34,10 @@ namespace MangoEditor {
         MangoEngine::Result on_draw_imgui() override {
             ImGui::DockSpaceOverViewport();
             ImGui::Begin("Scene");
-            ImGui::Image(MangoEngine::imgui_renderer->get_scene_texture(), { 1920, 1080 });
+            auto extent = ImGui::GetContentRegionAvail();
+            camera->set_extent(extent.x, extent.y);
+            camera->update();
+            ImGui::Image(MangoEngine::imgui_renderer->get_scene_texture(), extent);
             ImGui::End();
             return MangoEngine::Result::eSuccess;
         }
@@ -44,6 +47,7 @@ namespace MangoEditor {
         }
 
     private:
+        std::shared_ptr<MangoEngine::OrthographicCamera> camera;
         float rotate = 0.0f;
     };
 }
