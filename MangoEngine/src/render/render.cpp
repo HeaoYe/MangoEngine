@@ -48,12 +48,33 @@ namespace MangoEngine {
         render_pass.add_resolve_render_target("scene_texture", MangoRHI::RenderTargetLayout::eColor);
         render_pass.set_depth_render_target("depth", MangoRHI::RenderTargetLayout::eDepth);
         render_pass.add_subpass("main", MangoRHI::PipelineBindPoint::eGraphicsPipeline);
+        // render_pass.add_output_render_target("output", MangoRHI::RenderTargetLayout::eColor, {
+        //     .src_color_factor = MangoRHI::BlendFactor::eSrcAlpha,
+        //     .dst_color_factor = MangoRHI::BlendFactor::eOneMinusSrcAlpha,
+        //     .color_op = MangoRHI::BlendOp::eAdd,
+        //     .src_alpha_factor = MangoRHI::BlendFactor::eOne,
+        //     .dst_alpha_factor = MangoRHI::BlendFactor::eZero,
+        //     .alpha_op = MangoRHI::BlendOp::eAdd
+        // });
+        // render_pass.add_resolve_render_target("scene_texture", MangoRHI::RenderTargetLayout::eColor);
+        // render_pass.set_depth_render_target("depth", MangoRHI::RenderTargetLayout::eDepthReadonly);
+        // render_pass.add_subpass("main-alpha", MangoRHI::PipelineBindPoint::eGraphicsPipeline);
         render_pass.add_input_render_target("scene_texture", MangoRHI::RenderTargetLayout::eShaderRead);
         render_pass.add_output_render_target("output", MangoRHI::RenderTargetLayout::eColor);
         render_pass.add_resolve_render_target(MANGORHI_SURFACE_RENDER_TARGET_NAME, MangoRHI::RenderTargetLayout::eColor);
         render_pass.add_subpass("imgui", MangoRHI::PipelineBindPoint::eGraphicsPipeline);
+        // render_pass.add_dependency({
+        //     .name = "main",
+        //     .stage = MangoRHI::PipelineStage::eEarlyFragmentTest,
+        //     .access = MangoRHI::Access::eDepthStencilRenderTargetRead | MangoRHI::Access::eDepthStencilRenderTargetWrite,
+        // }, {
+        //     .name = "main-alpha",
+        //     .stage = MangoRHI::PipelineStage::eEarlyFragmentTest,
+        //     .access = MangoRHI::Access::eDepthStencilRenderTargetRead,
+        // });
         render_pass.add_dependency({
             .name = "main",
+            // .name = "main-alpha",
             .stage = MangoRHI::PipelineStage::eColorOutput,
             .access = MangoRHI::Access::eColorRenderTargetWrite,
         }, {
@@ -64,7 +85,8 @@ namespace MangoEngine {
 
         context.create();
 
-        render_command.reset(new RenderCommand(*this));
+        render_command.reset(new RenderCommand(*this, MG_FALSE));
+        alpha_render_command.reset(new RenderCommand(*this, MG_TRUE));
         viewport = { 0, 0, 0, 0, 0, 1 };
         event_system->add_event_callback<WindowResizedEvent>([&](auto &event) {
             this->viewport.width = static_cast<f32>(event.width);
@@ -74,6 +96,7 @@ namespace MangoEngine {
 
     RenderSystem::~RenderSystem() {
         render_command.reset();
+        alpha_render_command.reset();
         MangoRHI::quit();
     }
 

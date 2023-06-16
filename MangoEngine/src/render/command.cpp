@@ -4,7 +4,7 @@
 namespace MangoEngine {
     QuadInstance::QuadInstance(glm::vec3 pos, glm::vec2 size, f32 rotate, glm::vec4 color, int texture_slot) : pos(pos), size(size), rotate(rotate), color(color), texture_slot(texture_slot) {}
 
-    RenderCommand::RenderCommand(RenderSystem &render_system) {
+    RenderCommand::RenderCommand(RenderSystem &render_system, Bool is_support_alpha) {
         _vertex_buffer_offset = 0;
         _descriptor_set = -1;
         _texture_slot = render_command_max_texture_slot_count;
@@ -13,6 +13,11 @@ namespace MangoEngine {
         auto &resource_factory = context.get_resource_factory_reference();
         vertex_buffer = std::move(resource_factory.create_vertex_buffer(sizeof(QuadInstance), render_command_max_quad_instance_per_frame));
 
+        // if (is_support_alpha == MG_TRUE) {
+        //     quad_shader_program = std::move(resource_factory.create_shader_program("main-alpha"));
+        // } else {
+        //     quad_shader_program = std::move(resource_factory.create_shader_program("main"));
+        // }
         quad_shader_program = std::move(resource_factory.create_shader_program("main"));
         quad_shader_program->add_vertex_attribute(MangoRHI::VertexInputType::eFloat3, sizeof(glm::vec3));
         quad_shader_program->add_vertex_attribute(MangoRHI::VertexInputType::eFloat2, sizeof(glm::vec2));
@@ -27,6 +32,11 @@ namespace MangoEngine {
         quad_shader_program->set_cull_mode(MangoRHI::CullMode::eNone);
         quad_shader_program->set_depth_test_enabled(MangoRHI::MG_TRUE);
         quad_shader_program->set_depth_compare_op(MangoRHI::DepthCompareOp::eLessOrEqual);
+        if (is_support_alpha == MG_TRUE) {
+            quad_shader_program->set_depth_write_enabled(MangoRHI::MG_FALSE);
+        } else {
+            quad_shader_program->set_depth_write_enabled(MangoRHI::MG_TRUE);
+        }
 
         auto camera_uniform_layout = quad_shader_program->create_descriptor_set_layout("camera uniform layout");
         camera_uniform_layout.lock()->add_uniforms_descriptor(MangoRHI::DescriptorStage::eVertex, sizeof(glm::mat4) * 2, 1);

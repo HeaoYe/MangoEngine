@@ -21,7 +21,7 @@ namespace MangoEngine {
 
     class RenderCommand {
     public:
-        RenderCommand(RenderSystem &render_system);
+        RenderCommand(RenderSystem &render_system, Bool is_support_alpha);
         ~RenderCommand();
 
         void begin_scene(std::shared_ptr<Camera> camera);

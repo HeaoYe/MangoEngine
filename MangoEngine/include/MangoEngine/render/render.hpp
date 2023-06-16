@@ -17,10 +17,12 @@ namespace MangoEngine {
         void end_render();
 
         RenderCommand &get_render_command() { return *render_command; }
+        RenderCommand &get_alpha_render_command() { return *alpha_render_command; }
 
     private:
         MangoRHI::Viewport viewport;
         std::unique_ptr<RenderCommand> render_command;
+        std::unique_ptr<RenderCommand> alpha_render_command;
 
     declare_runtime_system(RenderSystem)
     };

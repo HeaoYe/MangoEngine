@@ -45,7 +45,7 @@ public:
 
     void draw() {
         std::for_each(quads.begin(), quads.end(), [this](auto &quad) {
-            auto &command = MangoEngine::render_system->get_render_command();
+            auto &command = MangoEngine::render_system->get_alpha_render_command();
             command.draw_quad(
                 quad.root + max_quad_size * 2.0f * quad.dir * quad.dt * (quad.random + 0.5f),
                 (quad_duration - quad.dt) / quad_duration * max_quad_size * (quad.random * 0.5f + 0.75f),
@@ -103,9 +103,15 @@ public:
         command.draw_quad({ 0, 0, -0.1 }, { 320, 320 }, rotate, { 1.0f, 1.0f, 1.0f, 1.0f }, texture);
         command.draw_quad({ 320, 0, -0.1 }, { 320, 320 }, -rotate, { 1.0f, 1.0f, 1.0f, 1.0f }, texture);
         command.draw_quad({ -320, 0, -0.1 }, { 320, 320 }, -rotate - pi, { 1.0f, 1.0f, 1.0f, 1.0f }, texture);
-        quad_manager->draw();
 
         command.end_scene();
+
+        auto &alpha_command = MangoEngine::render_system->get_alpha_render_command();
+        alpha_command.begin_scene(camera);
+
+        quad_manager->draw();
+
+        alpha_command.end_scene();
         return MangoEngine::Result::eSuccess;
     }
 
