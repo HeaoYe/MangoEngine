@@ -57,7 +57,10 @@ namespace MangoEngine {
         ImGui_ImplVulkan_DestroyFontUploadObjects();
 
         auto *scene = context.get_render_pass()->get_render_targets()[context.get_render_pass()->get_render_target_index_by_name("scene_texture")].get();
-        sampler.reset(dynamic_cast<MangoRHI::VulkanSampler *>(context.get_resource_factory_reference().create_sampler().release()));
+        sampler.reset(dynamic_cast<MangoRHI::VulkanSampler *>(context.get_resource_factory_reference().create_sampler(MangoRHI::MG_FALSE).release()));
+        sampler->set_address_mode(MangoRHI::SamplerAddressMode::eClampToBorder, MangoRHI::SamplerAddressMode::eClampToBorder, MangoRHI::SamplerAddressMode::eClampToBorder);
+        sampler->set_border_color(MangoRHI::SamplerBorderColor::eFloatOpaqueBlack);
+        sampler->create();
         scene_texture = ImGui_ImplVulkan_AddTexture(sampler->get_sampler(), scene->get_image_views()[0], VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 
         context.add_resource_recreate_callback([this, scene]() {

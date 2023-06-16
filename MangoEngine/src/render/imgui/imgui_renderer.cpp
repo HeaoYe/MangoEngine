@@ -22,6 +22,9 @@ namespace MangoEngine {
         io.IniFilename = nullptr;
         io.LogFilename = nullptr;
         ImGui::StyleColorsClassic();
+        auto &style = ImGui::GetStyle();
+        style.WindowMinSize = { 160, 160 };
+        style.WindowRounding = 2;
 
         int width, height;
         glfwGetFramebufferSize(static_cast<GLFWwindow *>(window_system->get_native_pointer()), &width, &height);

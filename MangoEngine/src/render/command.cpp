@@ -160,6 +160,5 @@ namespace MangoEngine {
         _texture_slot = render_command_max_texture_slot_count;
         _descriptor_set = -1;
         texture_cache.clear();
-        // texture_quads.clear();
     }
 }

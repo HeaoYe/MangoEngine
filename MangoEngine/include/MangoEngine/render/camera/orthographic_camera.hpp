@@ -9,6 +9,7 @@ namespace MangoEngine {
         virtual void update() override;
         void set_extent(glm::vec2 extent);
         void set_extent(f32 width, f32 height) { set_extent({ width, height }); }
+        glm::vec2 get_extent() const { return extent; }
 
     private:
         glm::vec2 extent;
