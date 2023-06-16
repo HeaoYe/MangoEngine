@@ -10,15 +10,15 @@ namespace MangoEngine {
     class RenderSystem {
     public:
         void set_bg_color(f32 r, f32 g, f32 b, f32 a);
-        Result begin_render();
-        Result end_render();
+        Result acquire();
+        Result present();
+
+        void begin_render();
+        void end_render();
 
         RenderCommand &get_render_command() { return *render_command; }
-        const std::weak_ptr<MangoRHI::DescriptorSet> &get_descriptor_set() const { return descriptor_set; };
 
     private:
-        std::unique_ptr<MangoRHI::ShaderProgram> quad_shader_program;
-        std::weak_ptr<MangoRHI::DescriptorSet> descriptor_set;
         MangoRHI::Viewport viewport;
         std::unique_ptr<RenderCommand> render_command;
 

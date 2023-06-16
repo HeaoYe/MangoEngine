@@ -7,8 +7,8 @@ namespace MangoEditor {
         void generate_engine_config(MangoEngine::EngineConfig *engine_config) override {
             engine_config->api = MangoEngine::RenderAPI::eVulkan;
             engine_config->title = "Mango Engine Editor";
-            engine_config->window_x = 0;
-            engine_config->window_y = 0;
+            engine_config->window_x = -1;
+            engine_config->window_y = -1;
             engine_config->window_width = 1920;
             engine_config->window_height = 1080;
         }
@@ -25,9 +25,12 @@ namespace MangoEditor {
         }
 
         MangoEngine::Result on_draw_frame() override {
-            camera->bind();
             auto &command = MangoEngine::render_system->get_render_command();
+            command.begin_scene(camera);
+
             command.draw_quad({ 0, 0 }, { 100, 100 }, rotate, { 0, 0.3, 0.99 });
+
+            command.end_scene();
             return MangoEngine::Result::eSuccess;
         }
 

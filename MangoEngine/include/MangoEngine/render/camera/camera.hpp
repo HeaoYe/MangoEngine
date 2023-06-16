@@ -7,9 +7,10 @@ namespace MangoEngine {
     public:
         virtual ~Camera() = default;
         virtual void update() = 0;
-        virtual void bind();
         glm::mat4 &view() { return datas[0]; }
         glm::mat4 &project() { return datas[1]; }
+
+        glm::mat4 *get_datas_ptr() { return datas; }
     public:
         glm::vec3 pos;
         f32 zoom;

@@ -6,7 +6,7 @@ layout(location = 2) in float in_rotate;
 layout(location = 3) in vec4 in_color;
 layout(location = 4) in int texture_slot;
 
-layout(binding = 0) uniform ViewProject {
+layout(set = 0, binding = 0) uniform ViewProject {
     mat4 view;
     mat4 project;
 } vp;

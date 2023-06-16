@@ -97,12 +97,15 @@ public:
 
     MangoEngine::Result on_draw_frame() override {
         auto &command = MangoEngine::render_system->get_render_command();
-        camera->bind();
+        command.begin_scene(camera);
+
         command.draw_quad({ 0, 0, -0.1 }, { 240, 240 }, rotate, { 0.05, 0.9 , 0.99, 0.5f });
         command.draw_quad({ 0, 0, -0.1 }, { 320, 320 }, rotate, { 1.0f, 1.0f, 1.0f, 1.0f }, texture);
         command.draw_quad({ 320, 0, -0.1 }, { 320, 320 }, -rotate, { 1.0f, 1.0f, 1.0f, 1.0f }, texture);
         command.draw_quad({ -320, 0, -0.1 }, { 320, 320 }, -rotate - pi, { 1.0f, 1.0f, 1.0f, 1.0f }, texture);
         quad_manager->draw();
+
+        command.end_scene();
         return MangoEngine::Result::eSuccess;
     }
 

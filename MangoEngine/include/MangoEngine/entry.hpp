@@ -38,12 +38,16 @@ int main() {
 
     while (MangoEngine::window_system->pull_events() != MangoEngine::MG_FALSE) {
         application->on_update(ImGui::GetIO().DeltaTime);
-        if (MangoEngine::render_system->begin_render() == MangoEngine::Result::eSuccess) {
+        if (MangoEngine::render_system->acquire() == MangoEngine::Result::eSuccess) {
+            MangoEngine::render_system->begin_render();
             application->on_draw_frame();
+            MangoEngine::render_system->end_render();
+
             MangoEngine::imgui_renderer->begin_imgui();
             application->on_draw_imgui();
             MangoEngine::imgui_renderer->end_imgui();
-            MangoEngine::render_system->end_render();
+
+            MangoEngine::render_system->present();
         }
         MangoEngine::input_system->swap_state();
     }
