@@ -6,7 +6,7 @@ layout(location = 2) flat in int frag_texture_slot;
 
 layout(location = 0) out vec4 out_color;
 
-layout(binding = 1) uniform sampler2D textures[32];
+layout(set = 1, binding = 0) uniform sampler2D textures[32];
 
 void main() {
     if (0 <= frag_texture_slot && frag_texture_slot < 32) {

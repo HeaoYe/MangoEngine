@@ -30,12 +30,14 @@ namespace MangoEngine {
         context.set_vsync_enabled(MangoRHI::MG_FALSE);
         context.set_swapchain_image_count(3);
         context.set_max_in_flight_frame_count(2);
-        context.set_multisample_count(MangoRHI::MultisampleCount::e1);
+        context.set_multisample_count(MangoRHI::MultisampleCount::e2);
 
         auto &render_pass = context.get_render_pass_reference();
         render_pass.create_render_target("depth", MangoRHI::RenderTargetUsage::eDepth);
+        render_pass.create_render_target("output", MangoRHI::RenderTargetUsage::eColor);
+        render_pass.create_render_target("scene_texture", MangoRHI::RenderTargetUsage::eTexture);
         context.set_clear_value("depth", { .depth_stencil = { .depth = 1.0f, .stencil = 1 } });
-        render_pass.add_output_render_target(MANGORHI_SURFACE_RENDER_TARGET_NAME, MangoRHI::RenderTargetLayout::eColor, {
+        render_pass.add_output_render_target("output", MangoRHI::RenderTargetLayout::eColor, {
             .src_color_factor = MangoRHI::BlendFactor::eSrcAlpha,
             .dst_color_factor = MangoRHI::BlendFactor::eOneMinusSrcAlpha,
             .color_op = MangoRHI::BlendOp::eAdd,
@@ -43,12 +45,36 @@ namespace MangoEngine {
             .dst_alpha_factor = MangoRHI::BlendFactor::eZero,
             .alpha_op = MangoRHI::BlendOp::eAdd
         });
+        render_pass.add_resolve_render_target("scene_texture", MangoRHI::RenderTargetLayout::eColor);
         render_pass.set_depth_render_target("depth", MangoRHI::RenderTargetLayout::eDepth);
         render_pass.add_subpass("main", MangoRHI::PipelineBindPoint::eGraphicsPipeline);
-        render_pass.add_output_render_target(MANGORHI_SURFACE_RENDER_TARGET_NAME, MangoRHI::RenderTargetLayout::eColor);
+        // render_pass.add_output_render_target("output", MangoRHI::RenderTargetLayout::eColor, {
+        //     .src_color_factor = MangoRHI::BlendFactor::eSrcAlpha,
+        //     .dst_color_factor = MangoRHI::BlendFactor::eOneMinusSrcAlpha,
+        //     .color_op = MangoRHI::BlendOp::eAdd,
+        //     .src_alpha_factor = MangoRHI::BlendFactor::eOne,
+        //     .dst_alpha_factor = MangoRHI::BlendFactor::eZero,
+        //     .alpha_op = MangoRHI::BlendOp::eAdd
+        // });
+        // render_pass.add_resolve_render_target("scene_texture", MangoRHI::RenderTargetLayout::eColor);
+        // render_pass.set_depth_render_target("depth", MangoRHI::RenderTargetLayout::eDepthReadonly);
+        // render_pass.add_subpass("main-alpha", MangoRHI::PipelineBindPoint::eGraphicsPipeline);
+        render_pass.add_input_render_target("scene_texture", MangoRHI::RenderTargetLayout::eShaderRead);
+        render_pass.add_output_render_target("output", MangoRHI::RenderTargetLayout::eColor);
+        render_pass.add_resolve_render_target(MANGORHI_SURFACE_RENDER_TARGET_NAME, MangoRHI::RenderTargetLayout::eColor);
         render_pass.add_subpass("imgui", MangoRHI::PipelineBindPoint::eGraphicsPipeline);
+        // render_pass.add_dependency({
+        //     .name = "main",
+        //     .stage = MangoRHI::PipelineStage::eEarlyFragmentTest,
+        //     .access = MangoRHI::Access::eDepthStencilRenderTargetRead | MangoRHI::Access::eDepthStencilRenderTargetWrite,
+        // }, {
+        //     .name = "main-alpha",
+        //     .stage = MangoRHI::PipelineStage::eEarlyFragmentTest,
+        //     .access = MangoRHI::Access::eDepthStencilRenderTargetRead,
+        // });
         render_pass.add_dependency({
             .name = "main",
+            // .name = "main-alpha",
             .stage = MangoRHI::PipelineStage::eColorOutput,
             .access = MangoRHI::Access::eColorRenderTargetWrite,
         }, {
@@ -58,37 +84,9 @@ namespace MangoEngine {
         });
 
         context.create();
-        auto &resource_factory = context.get_resource_factory_reference();
 
-        quad_shader_program.reset(resource_factory.create_shader_program("main").release());
-        quad_shader_program->add_vertex_attribute(MangoRHI::VertexInputType::eFloat3, sizeof(glm::vec3));
-        quad_shader_program->add_vertex_attribute(MangoRHI::VertexInputType::eFloat2, sizeof(glm::vec2));
-        quad_shader_program->add_vertex_attribute(MangoRHI::VertexInputType::eFloat, sizeof(f32));
-        quad_shader_program->add_vertex_attribute(MangoRHI::VertexInputType::eFloat4, sizeof(glm::vec4));
-        quad_shader_program->add_vertex_attribute(MangoRHI::VertexInputType::eInt, sizeof(i32));
-        quad_shader_program->add_vertex_binding(MangoRHI::VertexInputRate::ePerInstance);
-        auto builtin_quad_vert_shader = resource_factory.create_shader("assets/shaders/builtin-quad_shader.vert.spv");
-        auto builtin_quad_frag_shader = resource_factory.create_shader("assets/shaders/builtin-quad_shader.frag.spv");
-        quad_shader_program->attach_vertex_shader(*builtin_quad_vert_shader, "main");
-        quad_shader_program->attach_fragment_shader(*builtin_quad_frag_shader, "main");
-        quad_shader_program->set_cull_mode(MangoRHI::CullMode::eNone);
-        quad_shader_program->set_depth_test_enabled(MangoRHI::MG_TRUE);
-        quad_shader_program->set_depth_compare_op(MangoRHI::DepthCompareOp::eLessOrEqual);
-        descriptor_set = quad_shader_program->create_descriptor_set();
-        auto &empty_texture = *resource_factory.create_empty_texture().release();
-        descriptor_set.lock()->add_uniforms_descriptor(MangoRHI::DescriptorStage::eVertex, sizeof(glm::mat4) * 2, 1);
-        descriptor_set.lock()->add_textures_descriptor(MangoRHI::DescriptorStage::eFragment, {
-            empty_texture, empty_texture, empty_texture, empty_texture, empty_texture, empty_texture,
-            empty_texture, empty_texture, empty_texture, empty_texture, empty_texture, empty_texture,
-            empty_texture, empty_texture, empty_texture, empty_texture, empty_texture, empty_texture,
-            empty_texture, empty_texture, empty_texture, empty_texture, empty_texture, empty_texture,
-            empty_texture, empty_texture, empty_texture, empty_texture, empty_texture, empty_texture,
-            empty_texture, empty_texture
-        });
-        empty_texture.destroy_before(quad_shader_program.get());
-        quad_shader_program->create();
-
-        render_command.reset(new RenderCommand(*this));
+        render_command.reset(new RenderCommand(*this, MG_FALSE));
+        alpha_render_command.reset(new RenderCommand(*this, MG_TRUE));
         viewport = { 0, 0, 0, 0, 0, 1 };
         event_system->add_event_callback<WindowResizedEvent>([&](auto &event) {
             this->viewport.width = static_cast<f32>(event.width);
@@ -98,29 +96,34 @@ namespace MangoEngine {
 
     RenderSystem::~RenderSystem() {
         render_command.reset();
-        quad_shader_program.reset();
+        alpha_render_command.reset();
         MangoRHI::quit();
     }
 
     void RenderSystem::set_bg_color(f32 r, f32 g, f32 b, f32 a) {
         auto &context = MangoRHI::get_context();
-        context.set_clear_value(MANGORHI_SURFACE_RENDER_TARGET_NAME, { .color = { r, g, b, a } });
+        context.set_clear_value("output", { .color = { r, g, b, a } });
     }
 
-    Result RenderSystem::begin_render() {
+    Result RenderSystem::acquire() {
         auto &context = MangoRHI::get_context();
         if (context.begin_frame() != MangoRHI::Result::eSuccess) {
             return Result::eFailed;
         }
-        auto &command = context.get_current_command_reference();
-        command.bind_shader_program(*quad_shader_program);
-        command.set_viewport(viewport);
-        command.set_scissor({ 0, 0, static_cast<u32>(viewport.width), static_cast<u32>(viewport.height) });
-        render_command->render(context.get_current_command_reference());
         return Result::eSuccess;
     }
 
-    Result RenderSystem::end_render() {
+    void RenderSystem::begin_render() {
+        auto &context = MangoRHI::get_context();
+        auto &command = context.get_current_command_reference();
+        command.set_viewport(viewport);
+        command.set_scissor({ 0, 0, static_cast<u32>(viewport.width), static_cast<u32>(viewport.height) });
+    }
+
+    void RenderSystem::end_render() {
+    }
+
+    Result RenderSystem::present() {
         auto &context = MangoRHI::get_context();
         if (context.end_frame() != MangoRHI::Result::eSuccess) {
             return Result::eFailed;

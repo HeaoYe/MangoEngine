@@ -8,12 +8,9 @@ namespace MangoEngine {
     CameraSystem::CameraSystem() = default;
     CameraSystem::~CameraSystem() = default;
 
-    void Camera::bind() {
-        void *ptr = render_system->get_descriptor_set().lock()->get_uniform_buffer_pointer(0, 0);
-        memcpy(ptr, datas, sizeof(glm::mat4) * 2);
-    }
-
-    Camera &CameraSystem::create_orthographic_camera(glm::vec3 pos, glm::vec2 size, f32 depth) {
-        return *cameras.emplace_back(new OrthographicCamera(pos, size, depth));
+    std::shared_ptr<OrthographicCamera> CameraSystem::create_orthographic_camera(glm::vec3 pos, glm::vec2 size, f32 depth) {
+        auto camera = std::make_shared<OrthographicCamera>(pos, size, depth);
+        cameras.push_back(std::reinterpret_pointer_cast<Camera>(camera));
+        return std::move(camera);
     }
 }

@@ -8,6 +8,7 @@ namespace MangoEngine {
     ImGuiBackend::~ImGuiBackend() = default;
     void ImGuiBackend::begin_imgui() {}
     void ImGuiBackend::end_imgui() {}
+    ImTextureID ImGuiBackend::get_scene_texture() { return nullptr; }
 
     implement_runtime_system(ImGuiRenderer, imgui_renderer)
 
@@ -18,7 +19,12 @@ namespace MangoEngine {
         io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
         // io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
         io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+        io.IniFilename = nullptr;
+        io.LogFilename = nullptr;
         ImGui::StyleColorsClassic();
+        auto &style = ImGui::GetStyle();
+        style.WindowMinSize = { 160, 160 };
+        style.WindowRounding = 2;
 
         int width, height;
         glfwGetFramebufferSize(static_cast<GLFWwindow *>(window_system->get_native_pointer()), &width, &height);
@@ -85,5 +91,9 @@ namespace MangoEngine {
             // ImGui::UpdatePlatformWindows();
             // ImGui::RenderPlatformWindowsDefault();
         // }
+    }
+
+    ImTextureID ImGuiRenderer::get_scene_texture() {
+        return backend->get_scene_texture();
     }
 }

@@ -7,6 +7,7 @@ namespace MangoEngine {
     public:
         static std::shared_ptr<Texture> load_from_file(const char *filename);
         static std::shared_ptr<Texture> generate();
+        ~Texture();
 
         MangoRHI::Texture &get_texture_reference() { return *texture; }
         const u32 uuid;

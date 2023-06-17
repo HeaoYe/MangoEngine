@@ -5,6 +5,7 @@
 namespace MangoEngine {
     class Application {
     public:
+        virtual void generate_engine_config(EngineConfig *engine_config) = 0;
         virtual Result initialize() = 0;
         virtual Result on_draw_frame() = 0;
         virtual Result on_draw_imgui() = 0;

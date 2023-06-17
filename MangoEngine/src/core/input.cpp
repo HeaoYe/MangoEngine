@@ -14,6 +14,8 @@ namespace MangoEngine {
     void InputSystem::swap_state() {
         current_state = !current_state;
         memcpy(&states[current_state], &states[!current_state], sizeof(states[0]));
+        states[current_state].mouse_scroll_x = 0;
+        states[current_state].mouse_scroll_y = 0;
     }
 
     Bool InputSystem::is_key_down(Key key) {

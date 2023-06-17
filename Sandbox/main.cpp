@@ -33,7 +33,7 @@ public:
         if (total > 2.0f / static_cast<float>(quad_per_second))
             total = 0.0f;
         double n = static_cast<double>(rand()) / static_cast<double>(RAND_MAX) * 2.0 * pi;
-        length += 1;
+        count += 1;
         quads.emplace_back(
             glm::vec2(MangoEngine::input_system->get_last_mouse_x() - static_cast<int>(window_width / 2), static_cast<int>(window_height / 2) - MangoEngine::input_system->get_last_mouse_y()),
             glm::vec2(cos(n), sin(n)),
@@ -45,7 +45,7 @@ public:
 
     void draw() {
         std::for_each(quads.begin(), quads.end(), [this](auto &quad) {
-            auto &command = MangoEngine::render_system->get_render_command();
+            auto &command = MangoEngine::render_system->get_alpha_render_command();
             command.draw_quad(
                 quad.root + max_quad_size * 2.0f * quad.dir * quad.dt * (quad.random + 0.5f),
                 (quad_duration - quad.dt) / quad_duration * max_quad_size * (quad.random * 0.5f + 0.75f),
@@ -59,7 +59,7 @@ public:
 
     void update(float dt) {
         quads.remove_if([&](auto &quad) {
-            if ((quad.dt += dt) > quad_duration && (length -= 1) > -1) {
+            if ((quad.dt += dt) > quad_duration && (count -= 1) > -1) {
                 return true;
             }
             return false;
@@ -67,7 +67,7 @@ public:
         total += dt;
     }
 
-    int length = 0;
+    int count = 0;
 private:
     std::shared_ptr<MangoEngine::Texture> texture;
     std::list<Quad> quads;
@@ -76,23 +76,42 @@ private:
 
 class TestApplication final : public MangoEngine::Application {
 public:
+    void generate_engine_config(MangoEngine::EngineConfig *engine_config) override {
+        engine_config->window_x = 0;
+        engine_config->window_y = 0;
+        engine_config->window_width = window_width;
+        engine_config->window_height = window_height;
+        engine_config->title = "Sandbox";
+        engine_config->api = MangoEngine::RenderAPI::eVulkan;
+    }
+
     MangoEngine::Result initialize() override {
         MangoEngine::event_system->add_event_callback<MangoEngine::KeyPressedEvent>([&](auto event) {
             MG_INFO("Key Pressed: {}", MangoEngine::to_string(event.key))
         });
-        camera = &MangoEngine::camera_system->create_orthographic_camera({ 0, 0, 1 }, { window_width, window_height }, 2);
+        quad_manager = std::make_unique<QuadManager>();
+        camera = MangoEngine::camera_system->create_orthographic_camera({ 0, 0, 1 }, { window_width, window_height }, 2);
         texture = MangoEngine::Texture::load_from_file("assets/textures/dance.png");
         return MangoEngine::Result::eSuccess;
     }
 
     MangoEngine::Result on_draw_frame() override {
         auto &command = MangoEngine::render_system->get_render_command();
-        camera->bind();
+        command.begin_scene(camera);
+
         command.draw_quad({ 0, 0, -0.1 }, { 240, 240 }, rotate, { 0.05, 0.9 , 0.99, 0.5f });
         command.draw_quad({ 0, 0, -0.1 }, { 320, 320 }, rotate, { 1.0f, 1.0f, 1.0f, 1.0f }, texture);
         command.draw_quad({ 320, 0, -0.1 }, { 320, 320 }, -rotate, { 1.0f, 1.0f, 1.0f, 1.0f }, texture);
         command.draw_quad({ -320, 0, -0.1 }, { 320, 320 }, -rotate - pi, { 1.0f, 1.0f, 1.0f, 1.0f }, texture);
-        quad_manager.draw();
+
+        command.end_scene();
+
+        auto &alpha_command = MangoEngine::render_system->get_alpha_render_command();
+        alpha_command.begin_scene(camera);
+
+        quad_manager->draw();
+
+        alpha_command.end_scene();
         return MangoEngine::Result::eSuccess;
     }
 
@@ -106,7 +125,7 @@ public:
         ImGui::SliderFloat("float", &zoom, 0.1f, 2.0f);
         ImGui::SliderInt("Quad Generate Rate 10-500", &quad_per_second, 10, 500);
         ImGui::SliderInt("Quad Generate Rate 500-2000", &quad_per_second, 500, 2000);
-        ImGui::Text("Current Quad Number: %d", quad_manager.length);
+        ImGui::Text("Current Quad Number: %d", quad_manager->count);
         ImGui::ColorEdit3("clear color", (float*)&clear_color);
         MangoEngine::render_system->set_bg_color(clear_color[0], clear_color[1], clear_color[2], 0.0f);
         if (ImGui::Button("Button"))
@@ -115,6 +134,7 @@ public:
         ImGui::Text("counter = %d", counter);
         ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
         ImGui::InputText(u8"中文", buffer, 100);
+        ImGui::End();
 
         ImGui::ShowDemoWindow();
 
@@ -140,10 +160,11 @@ public:
             camera->pos.x += 150.0f * dt;
         }
         if (MangoEngine::input_system->is_mouse_button_down(MangoEngine::MouseButton::eRight)) {
-            quad_manager.generate();
+            quad_manager->generate();
         }
         rotate += 3.14 * dt;
-        quad_manager.update(dt);
+        quad_manager->update(dt);
+        zoom *= 1.0f + MangoEngine::input_system->get_mouse_scroll_y() / 5.0f;
         camera->zoom = zoom;
         camera->update();
         return MangoEngine::Result::eSuccess;
@@ -156,21 +177,12 @@ public:
 private:
     float zoom = 1.0f;
     float rotate = 0.0f;
-    MangoEngine::Camera *camera;
-    QuadManager quad_manager;
+    std::shared_ptr<MangoEngine::OrthographicCamera> camera;
+    std::unique_ptr<QuadManager> quad_manager;
     std::shared_ptr<MangoEngine::Texture> texture;
 };
 
 namespace MangoEngine {
-    void generate_engine_config(EngineConfig *engine_config) {
-        engine_config->window_x = 0;
-        engine_config->window_y = 0;
-        engine_config->window_width = window_width;
-        engine_config->window_height = window_height;
-        engine_config->title = "Sandbox";
-        engine_config->api = MangoEngine::RenderAPI::eVulkan;
-    }
-
     Application *create_application() {
         return new TestApplication();
     }

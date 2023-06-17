@@ -15,9 +15,10 @@ namespace MangoEngine {
 
         glfwInit();
         glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-        glfwWindowHint(GLFW_POSITION_X, x);
-        glfwWindowHint(GLFW_POSITION_Y, y);
         native_pointer = static_cast<void *>(glfwCreateWindow(width, height, title, nullptr, nullptr));
+        if (x != -1 && y != -1) {
+            glfwSetWindowPos(static_cast<GLFWwindow *>(native_pointer), x, y);
+        }
 
         glfwSetFramebufferSizeCallback(static_cast<GLFWwindow *>(native_pointer), [](GLFWwindow *, int width, int height){
             window_system->width = static_cast<u32>(width);

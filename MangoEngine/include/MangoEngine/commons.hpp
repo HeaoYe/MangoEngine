@@ -118,7 +118,6 @@ namespace MangoEngine {
         const char *title = "";
         RenderAPI api = RenderAPI::eNone;
     };
-    extern void generate_engine_config(EngineConfig *engine_config);
     extern EngineConfig *engine_config;
 
     template<typename src, typename dst>
