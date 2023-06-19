@@ -12,3 +12,4 @@
 #include "render/camera/camera.hpp"
 #include "render/camera/orthographic_camera.hpp"
 #include "render/imgui/imgui_renderer.hpp"
+#include "ecs/ecs.hpp"
