@@ -1,6 +1,5 @@
 #include <MangoEngine/entry.hpp>
 #include <imgui/imgui_internal.h>
-#include <string>
 
 namespace MangoEditor {
     struct A {
@@ -42,17 +41,31 @@ namespace MangoEditor {
             }
             MG_INFO("BENCHMARK AVERAGE ==> {}ns", nss / 10);
 
-            auto as = world.add_system<A>([](MangoEngine::ComponmentHandle<A> &handle) {
-                handle.for_each([](MangoEngine::u32 entity_id, A &a) {
-                    a.b -= 0.1;
+            auto spec = world.create_entity<A>({ .b = static_cast<float>(666777.888) });
+            auto spec2 = world.create_entity<B>({ .b = static_cast<float>(100) });
+
+            world.attach_event_handler<int>(spec2, [](unsigned int sender, const MangoEngine::EntityQuery &q, int e) {
+                MG_INFO("Sender {}: EVENT<INT> {}, b = {}", sender, e, q.get_component<B>().b);
+            });
+            world.attach_event_handler<A>(spec2, [](unsigned int sender, const MangoEngine::EntityQuery &q, A &e) {
+                MG_INFO("Sender {}: EVENT<A> {}, b = {}", sender, e.b, q.get_component<B>().b);
+            });
+
+            auto as = world.add_system<A>([spec](MangoEngine::ComponentHandle<A> &handle) {
+                handle.for_each([spec](MangoEngine::u32 entity_id, A &a) {
+                    if (spec == entity_id) {
+                        MG_INFO("FIND SPEC => {}", a.b)
+                    } else {
+                        a.b -= 0.1;
+                    }
                 });
             });
-            auto bs = world.add_system<B>([](MangoEngine::ComponmentHandle<B> &handle) {
+            auto bs = world.add_system<B>([](MangoEngine::ComponentHandle<B> &handle) {
                 handle.for_each([](MangoEngine::u32 entity_id, B &b) {
                     b.b += 0.1;
                 });
             });
-            auto bs2 = world.add_system<B>([](MangoEngine::ComponmentHandle<B> &handle) {
+            auto bs2 = world.add_system<B>([](MangoEngine::ComponentHandle<B> &handle) {
                 handle.for_each([](MangoEngine::u32 entity_id, B &b) {
                     b.b += 0.2;
                 });
@@ -101,6 +114,11 @@ namespace MangoEditor {
                 nss += ns;
             }
             MG_INFO("BENCHMARK AVERAGE ==> {}ns", nss / 10);
+
+            A e { .b = 1 };
+            world.send_event(spec, spec2, e);
+            world.send_event<A>(spec, spec2, { .b = 2 });
+            world.send_event<int>(spec, spec2, 3768);
 
             return MangoEngine::Result::eSuccess;
         }

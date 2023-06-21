@@ -1,11 +1,6 @@
 #pragma once
 
 #include "../commons.hpp"
-#include "MangoEngine/core/logger.hpp"
-#include <type_traits>
-#include <unordered_map>
-#include <utility>
-#include <vector>
 
 namespace MangoEngine {
     template <typename T>
@@ -89,84 +84,106 @@ namespace MangoEngine {
     };
 
     template<typename ComponentType>
-    struct ComponmentHandle;
+    struct ComponentHandle;
+
+    struct EntityQuery;
 
     template<typename ComponentType>
-    struct ComponmentPool {
-        friend ComponmentHandle<ComponentType>;
-        u32 add_componment(u32 entity_id, ComponentType &&componment) {
-            return componments.emplace(entity_id, std::forward<ComponentType>(componment));
+    struct ComponentPool {
+        friend ComponentHandle<ComponentType>;
+        friend EntityQuery;
+        u32 add_component(u32 entity_id, ComponentType &&component) {
+            return components.emplace(entity_id, std::forward<ComponentType>(component));
         }
     private:
-        template<typename ComponmentType>
-        struct SpecialComponment {
-            SpecialComponment(u32 entity_id, ComponentType &&componment) : entity_id(entity_id), inner(std::forward<ComponentType>(componment)) {}
+        template<typename ComponentType_>
+        struct SpecialComponent {
+            SpecialComponent(u32 entity_id, ComponentType_ &&component) : entity_id(entity_id), inner(std::forward<ComponentType_>(component)) {}
             u32 entity_id;
-            ComponmentType inner;
+            ComponentType_ inner;
         };
 
-        IDPool<SpecialComponment<ComponentType>> componments;
+        IDPool<SpecialComponent<ComponentType>> components;
     };
 
-    template <typename ComponmentType>
-    using ComponmentHandler = std::function<void(u32, ComponmentType &)>;
+    template <typename ComponentType>
+    using ComponentHandler = std::function<void(u32, ComponentType &)>;
 
     template<typename ComponentType>
-    struct ComponmentHandle {
-        ComponmentHandle(ComponmentPool<ComponentType> *pool) : pool(pool) {}
-        void for_each(const ComponmentHandler<ComponentType> &handler) {
-            std::for_each(pool->componments.begin(), pool->componments.end(), [&](auto &componment) {
-                handler(componment.entity_id, componment.inner);
+    struct ComponentHandle {
+        ComponentHandle(ComponentPool<ComponentType> *pool) : pool(pool) {}
+        void for_each(const ComponentHandler<ComponentType> &handler) {
+            std::for_each(pool->components.begin(), pool->components.end(), [&](auto &component) {
+                handler(component.entity_id, component.inner);
             });
         }
     private:
-        ComponmentPool<ComponentType> *pool;
+        ComponentPool<ComponentType> *pool;
     };
 
+    template<typename EventType>
+    using EventHandler = std::function<void(u32, const EntityQuery &, EventType &)>;
+
     template<typename ComponentType>
-    using System = std::function<void (ComponmentHandle<ComponentType> &)>;
+    using System = std::function<void (ComponentHandle<ComponentType> &)>;
 
     class World {
         template<typename ComponentType>
         friend struct SystemHandler;
+        friend EntityQuery;
     private:
         template<typename ComponentType>
-        void create_componment(u32 entity_id, std::vector<std::pair<u32, u32>> &ids, ComponentType &&componment) {
-            u32 cls_id = get_componment_cls_id<ComponentType>();
-            auto *pool = reinterpret_cast<ComponmentPool<ComponentType> *>(componment_pools[cls_id]);
-            u32 id = pool->add_componment(entity_id, std::forward<ComponentType>(componment));
+        void create_component(u32 entity_id, std::vector<std::pair<u32, u32>> &ids, ComponentType &&component) {
+            u32 cls_id = get_component_cls_id<std::decay_t<ComponentType>>();
+            auto *pool = reinterpret_cast<ComponentPool<ComponentType> *>(component_pools[cls_id]);
+            u32 id = pool->add_component(entity_id, std::forward<ComponentType>(component));
             ids.push_back(std::make_pair(cls_id, id));
         }
 
         template<typename ComponentType, typename ...Others>
-        void create_componment(u32 entity_id, std::vector<std::pair<u32, u32>> &ids, ComponentType &&componment, Others && ...others) {
-            create_componment<ComponentType>(entity_id, ids, std::forward<ComponentType>(componment));
-            create_componment<Others...>(entity_id, ids, std::forward<Others>(others)...);
+        void create_component(u32 entity_id, std::vector<std::pair<u32, u32>> &ids, ComponentType &&component, Others && ...others) {
+            create_component<ComponentType>(entity_id, ids, std::forward<ComponentType>(component));
+            create_component<Others...>(entity_id, ids, std::forward<Others>(others)...);
         }
 
-        std::vector<void *> componment_pools;
-        // entity_id to componment id(s)
-        IDPool<std::vector<std::pair<u32, u32>>> entities;
-        // componment_id to entity_id
-        // IDPool<u32> componments;
+        struct EntityManager {
+            u32 push(std::vector<std::pair<u32, u32>> &&components) {
+                handlers.push(std::move(std::vector<std::pair<u32, void *>>(0)));
+                return entities.push(std::forward<std::vector<std::pair<u32, u32>>>(components));
+            }
+
+            std::vector<std::pair<u32, u32>> &get_components(u32 id) {
+                return entities.at(id);
+            }
+
+            std::vector<std::pair<u32, void *>> &get_handlers(u32 id) {
+                return handlers.at(id);
+            }
+        private:
+            IDPool<std::vector<std::pair<u32, u32>>> entities;
+            IDPool<std::vector<std::pair<u32, void *>>> handlers;
+        } entity_manager;
+
+        std::vector<void *> component_pools;
 
     public:
         template<typename ...ComponentType>
-        void create_entity(ComponentType && ...componments) {
-            u32 id = entities.push(std::move(std::vector<std::pair<u32, u32>>(sizeof...(componments))));
-            create_componment<ComponentType...>(id, entities.at(id), std::forward<ComponentType>(componments)...);
+        u32 create_entity(ComponentType && ...components) {
+            u32 id = entity_manager.push(std::move(std::vector<std::pair<u32, u32>>(sizeof...(components))));
+            create_component<ComponentType...>(id, entity_manager.get_components(id), std::forward<ComponentType>(components)...);
+            return id;
         }
 
     private:
         template<typename ComponentType>
-        u32 get_componment_cls_id() {
+        u32 get_component_cls_id() {
             static u32 i = [=]() constexpr {
-                componment_pools.push_back(reinterpret_cast<void *>(new ComponmentPool<ComponentType>()));
-                return _current_componment_cls_id++;
+                component_pools.push_back(reinterpret_cast<void *>(new ComponentPool<ComponentType>()));
+                return _current_component_cls_id++;
             }();
             return i;
         }
-        u32 _current_componment_cls_id = 0;
+        u32 _current_component_cls_id = 0;
 
     private:
         struct SystemHandler {
@@ -182,7 +199,7 @@ namespace MangoEngine {
         struct SpecialSystemHandler : public SystemHandler {
             SpecialSystemHandler(System<ComponentType> &&system) : system(std::forward<System<ComponentType>>(system)) {}
             void handle(World &world) override {
-                ComponmentHandle<ComponentType> handle { reinterpret_cast<ComponmentPool<ComponentType> *>(world.componment_pools[world.get_componment_cls_id<ComponentType>()]) };
+                ComponentHandle<ComponentType> handle { reinterpret_cast<ComponentPool<ComponentType> *>(world.component_pools[world.get_component_cls_id<std::decay_t<ComponentType>>()]) };
                 system(handle);
             }
         private:
@@ -216,5 +233,76 @@ namespace MangoEngine {
                 }
             });
         }
+
+    public:
+        template<typename EventType>
+        void attach_event_handler(u32 entity_id, EventHandler<EventType> &&handler) {
+            u32 event_type_id = get_event_type_id<std::decay_t<EventType>>();
+            auto &handlers = entity_manager.get_handlers(entity_id);
+            handlers.push_back(std::make_pair(event_type_id, static_cast<void *>(new EventHandlerWrapper<EventType> { std::forward<EventHandler<EventType>>(handler) })));
+        }
+
+        template<typename EventType>
+        void send_event(u32 src_entity, u32 dst_entity, EventType &&event) {
+            u32 event_type_id = get_event_type_id<std::decay_t<EventType>>();
+            auto &handlers = entity_manager.get_handlers(dst_entity);
+            for (auto [_event_type_id, handler] : handlers) {
+                if (_event_type_id == event_type_id) {
+                    reinterpret_cast<EventHandlerWrapper<EventType> *>(handler)->handler(
+                        src_entity,
+                        { *this, dst_entity },
+                        event
+                    );
+                }
+            }
+        }
+
+    private:
+        template<typename EventType>
+        struct EventHandlerWrapper {
+            EventHandler<EventType> handler;
+        };
+        template<typename EventType>
+        u32 get_event_type_id() {
+            static u32 i = _current_event_type_id++;
+            return i;
+        }
+        u32 _current_event_type_id = 0;
+    };
+
+    struct EntityQuery {
+        EntityQuery(World &world, u32 entity_id) : world(world), entity_id(entity_id), components(world.entity_manager.get_components(entity_id)) {}
+        template<typename ComponentType>
+        u32 get_component_count() const {
+            u32 count = 0;
+            u32 cls_id = world.get_component_cls_id<std::decay_t<ComponentType>>();
+            for (auto [component_cls_id, component_id] : components) {
+                if (cls_id == component_cls_id) {
+                    count ++;
+                }
+            }
+            return count;
+        }
+        template<typename ComponentType>
+        ComponentType &get_component(u32 index = 0) const {
+            u32 cls_id = world.get_component_cls_id<std::decay_t<ComponentType>>();
+            u32 count = 0;
+            for (auto [component_cls_id, component_id] : components) {
+                if (cls_id == component_cls_id) {
+                    if (count == index) {
+                        return reinterpret_cast<ComponentPool<ComponentType> *>(world.component_pools[cls_id])->components.at(component_id).inner;
+                    } else {
+                        count ++;
+                    }
+                }
+            }
+            MG_ERROR("Component [{}, {}] not found", cls_id, index)
+            ComponentType *null = nullptr;
+            return *null;
+        }
+    private:
+        World &world;
+        u32 entity_id;
+        std::vector<std::pair<u32, u32>> &components;
     };
 }
